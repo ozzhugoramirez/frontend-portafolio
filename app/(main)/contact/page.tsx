@@ -113,7 +113,7 @@ export default function ContactPage() {
                       <Mail size={20} className="text-gray-400 group-hover:text-indigo-400 transition-colors" />
                     </div>
                     <div>
-                      <p className="font-medium text-white break-all">tuemail@ejemplo.com</p>
+                      <p className="font-medium text-white break-all">mycorreohugo@gmail.com</p>
                       <p className="text-xs text-gray-500 mt-1">Tiempo de respuesta: ~24hs</p>
                     </div>
                   </a>
@@ -124,8 +124,8 @@ export default function ContactPage() {
               <div className="mt-12 pt-12 border-t border-gray-800/50">
                 <h4 className="text-[10px] font-mono uppercase tracking-widest text-gray-600 mb-4">Redes de Conexión</h4>
                 <div className="flex gap-4">
-                  <SocialCircle icon={<Github size={18} />} link="https://github.com/tu-usuario" />
-                  <SocialCircle icon={<Linkedin size={18} />} link="https://linkedin.com/in/tu-usuario" />
+                  <SocialCircle icon={<Github size={18} />} link="https://github.com/ozzhugoramirez" />
+                  <SocialCircle icon={<Linkedin size={18} />} link="https://www.linkedin.com/in/hug-ramirez/" />
                 </div>
               </div>
 
