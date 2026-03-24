@@ -1,8 +1,18 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  allowedDevOrigins: ['192.168.0.231'],
+  
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'storage.googleapis.com',
+        port: '',
+        // Reemplazamos esto con la ruta exacta de tu bucket
+        pathname: '/media-portfolio-seba/**', 
+      },
+    ],
+  },
 };
 
 export default nextConfig;

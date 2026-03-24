@@ -176,7 +176,7 @@ export default function AdminLabPage() {
                     <td className="px-6 py-4">
                       <div className="text-white font-medium flex items-center gap-2">
                         {s.title} 
-                        {!s.is_public && <EyeOff size={12} className="text-gray-600" title="Oculto"/>}
+                        {!s.is_public && <span title="Oculto"><EyeOff size={12} className="text-gray-600" /></span>}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-indigo-400">{s.category}</td>
