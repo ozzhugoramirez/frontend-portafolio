@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-// 👉 NUEVO: Importamos markMessageAsRead
 import { getDashboardStats, getAdminMessages, markMessageAsRead } from '@/lib/api';
-// 👉 NUEVO: Sumamos CheckCircle2 a los íconos
 import { Activity, Eye, MousePointerClick, Download, BarChart2, Globe, TrendingUp, Mail, Inbox, Calendar, CheckCircle2 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -13,7 +11,6 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Cargamos todo en paralelo
     Promise.all([getDashboardStats(), getAdminMessages()])
       .then(([statsData, messagesData]) => {
         setStats(statsData);
@@ -26,13 +23,12 @@ export default function AdminDashboard() {
       });
   }, []);
 
-  // 👉 NUEVO: Función para marcar como leído
   const handleMarkAsRead = async (id: number) => {
     try {
-      // 1. Avisamos al backend
+    
       await markMessageAsRead(id);
       
-      // 2. Actualizamos la vista localmente para que el puntito desaparezca al instante
+  
       setMessages(prev => 
         prev.map(msg => msg.id === id ? { ...msg, is_read: true } : msg)
       );
@@ -45,7 +41,6 @@ export default function AdminDashboard() {
     return <div className="p-12 font-mono text-xs text-gray-500 uppercase tracking-widest animate-pulse">Sincronizando sistemas...</div>;
   }
 
-  // Contamos cuántos mensajes sin leer hay para mostrar en la pestaña
   const unreadCount = messages.filter(msg => !msg.is_read).length;
 
   return (

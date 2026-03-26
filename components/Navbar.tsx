@@ -35,20 +35,20 @@ export default function Navbar() {
   return (
     <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-8 lg:px-12 py-4 bg-[#0e0e0e] border-b border-gray-800">
       
-      {/* --- LOGO Y ESTADO --- */}
+     
       <div className="flex items-center gap-4 z-[60]">
         <Link href="/" className="text-white text-sm md:text-base leading-tight font-medium hover:opacity-80 transition-opacity">
           Sebastian <br /> Villalba
         </Link>
         
-        {/* 👉 NUEVO: Indicador de estado (Tech vibe) */}
+        
         <div className="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
           <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
           <span className="text-[9px] font-mono text-emerald-500 uppercase tracking-widest">Available</span>
         </div>
       </div>
 
-      {/* --- TABS DESKTOP --- */}
+   
       <nav className="hidden lg:flex items-center bg-[#121212] border border-gray-800 rounded-full px-2 py-1 gap-1">
         <NavTab href="/" label="Home" active={pathname === '/'} icon={<Home size={12} />} />
         <NavTab href="/about" label="About" active={pathname === '/about'} />
@@ -56,7 +56,7 @@ export default function Navbar() {
         <NavTab href="/lab" label="Lab" active={pathname === '/lab'} isSpecial />
       </nav>
 
-      {/* --- ACCIONES --- */}
+    
       <div className="flex items-center gap-3 md:gap-6 z-[60]">
         
         {/* BOTÓN CV DESKTOP */}
@@ -77,10 +77,10 @@ export default function Navbar() {
           href="/contact"
           className="hidden md:flex items-center gap-2 bg-white text-black px-5 py-2 rounded-full text-[10px] md:text-xs font-mono font-bold hover:bg-gray-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]"
         >
-          <Mail size={14} /> Contacto
+          <Mail size={14} /> contact
         </Link>
 
-        {/* 👉 NUEVO: ACCESO RÁPIDO A CONTACTO EN MÓVIL */}
+        
         <Link 
           href="/contact"
           className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
@@ -111,7 +111,7 @@ export default function Navbar() {
               onClick={closeMenu}
               className="flex items-center justify-center gap-3 bg-white text-black py-4 rounded-2xl font-mono text-sm uppercase tracking-widest font-bold shadow-[0_0_20px_rgba(255,255,255,0.1)]"
             >
-              <Mail size={18} /> Iniciar Contacto
+              <Mail size={18} /> Start Contact
             </Link>
 
             <a 
@@ -119,7 +119,7 @@ export default function Navbar() {
               onClick={() => { handleCvDownload(); closeMenu(); }}
               className="flex items-center justify-center gap-3 bg-[#121212] border border-gray-800 text-gray-300 py-4 rounded-2xl font-mono text-sm uppercase tracking-widest font-bold hover:text-white transition-colors"
             >
-              <Download size={18} /> Descargar CV
+              <Download size={18} /> download cv
             </a>
           </div>
         </nav>
@@ -128,7 +128,6 @@ export default function Navbar() {
   );
 }
 
-// --- SUBCOMPONENTES ---
 
 function NavTab({ href, label, active, isSpecial = false, icon }: any) {
   return (

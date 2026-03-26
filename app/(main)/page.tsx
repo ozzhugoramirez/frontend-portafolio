@@ -3,10 +3,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Github, Linkedin, Mail, ArrowRight, ArrowLeft, ChevronDown, ExternalLink, ShieldCheck, Youtube } from 'lucide-react';
 import Navbar from '@/components/Navbar'; 
-// 👉 NUEVO: Importamos trackEvent desde tu API
 import { getProfile, getProjects, trackEvent } from '@/lib/api'; 
+import Link from 'next/link';
 
-// --- ANIMACIÓN AL SCROLLEAR ---
+
+export const DiscordIcon = ({ size = 24, className = "" }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z" />
+  </svg>
+);
+
+
 function FadeInSection({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) {
   const [isVisible, setVisible] = useState(false);
   const domRef = useRef<HTMLDivElement>(null);
@@ -39,7 +53,7 @@ export default function Portfolio() {
   const [loading, setLoading] = useState(true);
   const [activeProject, setActiveProject] = useState(0);
 
-  // --- OBTENER DATOS DEL BACKEND Y REGISTRAR VISITA ---
+  
   useEffect(() => {
     Promise.all([getProfile(), getProjects()])
       .then(([profileData, projectsData]) => {
@@ -48,7 +62,7 @@ export default function Portfolio() {
         setProjects(projArray);
         setLoading(false);
 
-        // 👉 NUEVO: Registramos silenciosamente que alguien vio el Home
+        
         trackEvent('view', 'home');
       })
       .catch(err => {
@@ -57,7 +71,7 @@ export default function Portfolio() {
       });
   }, []);
 
-  // --- LÓGICA DEL CARRUSEL AUTOMÁTICO ---
+ 
   useEffect(() => {
     if (projects.length <= 1) return;
     const interval = setInterval(() => {
@@ -90,12 +104,12 @@ export default function Portfolio() {
             <h1 className="text-5xl sm:text-6xl md:text-[6.5vw] font-mono text-white tracking-tighter mb-4 w-full">
               <div className="flex flex-wrap items-center gap-4 md:gap-6 leading-[0.95]">
                 <span>Software</span>
-                <a 
-                  href="#projects" 
+                <Link
+                  href="/projects" 
                   className="flex-shrink-0 flex items-center gap-2 text-xs md:text-sm font-sans font-medium bg-white text-black px-5 py-2.5 rounded-full hover:bg-gray-200 transition cursor-pointer tracking-normal leading-normal shadow-xl z-20"
                 >
                   Projects <ArrowRight size={16} />
-                </a>
+                </Link>
               </div>
               <span className="w-full text-left md:text-right block mt-2 md:mt-4 leading-[0.95]">Engineer</span>
             </h1>
@@ -110,7 +124,8 @@ export default function Portfolio() {
                 {profile?.social_links?.linkedin && <SocialButton link={profile.social_links.linkedin} icon={<Linkedin size={14} />} label="LinkedIn" />}
                 {profile?.social_links?.youtube && <SocialButton link={profile.social_links.youtube} icon={<Youtube size={14} />} label="YouTube" />}
                 {profile?.social_links?.tiktok && <SocialButton link={profile.social_links.tiktok} icon={<TikTokIcon size={14} />} label="TikTok" />}
-                {profile?.social_links?.email && <SocialButton link={profile.social_links.email} icon={<Mail size={14} />} label="Email" />}
+                {profile?.social_links?.email && <SocialButton link={profile.social_links.email} icon={<DiscordIcon size={14} />} label="Discord" />}
+
               </div>
             </div>
           </FadeInSection>
@@ -215,7 +230,6 @@ export default function Portfolio() {
             <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-gray-800 pb-8">
                <div>
                   <h2 className="text-4xl md:text-5xl font-mono text-white mb-2">Certifications</h2>
-                  <p className="text-xs text-gray-500">Credenciales técnicas y validaciones de la industria.</p>
                </div>
                <span className="text-xs uppercase tracking-widest text-gray-500 hidden md:block">... /Credentials ...</span>
             </div>
@@ -250,7 +264,7 @@ export default function Portfolio() {
 function SocialButton({ icon, label, link }: { icon: React.ReactNode, label: string, link: string }) {
   if (!link || link === "#") return null;
 
-  // 👉 NUEVO: Registramos el click en la base de datos de telemetría antes de enviarlo
+
   const handleClick = () => {
     trackEvent('click', label.toLowerCase());
   };
@@ -274,7 +288,7 @@ function ProjectCard({ project, isMain = false }: { project: any, isMain?: boole
     ? (project.image_main.startsWith('http') ? project.image_main : `${process.env.NEXT_PUBLIC_BACKEND_URL}${project.image_main}`) 
     : null;
 
-  // 👉 NUEVO: Si es la tarjeta principal y hacen clic en "Read more", lo registramos
+ 
   const handleProjectClick = () => {
     trackEvent('view', `project-${project.slug}`);
   };

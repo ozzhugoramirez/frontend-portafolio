@@ -13,33 +13,27 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   
-  // Estado para evitar que se vea la pantalla mientras verifica
   const [isAuthorized, setIsAuthorized] = useState(false);
 
-  // 🛡️ EL GUARDIA DE SEGURIDAD
   useEffect(() => {
     const token = localStorage.getItem('access_token');
     
     if (!token) {
-      // Si no hay token, te manda al login inmediatamente
       router.push('/login');
     } else {
-      // Si hay token, levanta el telón
       setIsAuthorized(true);
     }
   }, [router]);
 
-  // 🚪 FUNCIÓN PARA CERRAR SESIÓN
+ 
   const handleLogout = () => {
-    // Destruimos las llaves
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     
-    // Te mandamos de vuelta al inicio
     router.push('/login');
   };
 
-  // Pantalla de carga mientras verifica (evita el "parpadeo" del dashboard)
+ 
   if (!isAuthorized) {
     return (
       <div className="h-screen w-full bg-[#050506] flex flex-col items-center justify-center">
@@ -131,7 +125,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 }
 
-// Subcomponente de Tab (Idéntico)
+
 function AdminNavTab({ href, icon, label, active, external = false }: any) {
   return (
     <Link 

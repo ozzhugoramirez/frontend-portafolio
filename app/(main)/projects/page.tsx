@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Navbar from '@/components/Navbar';
 import Link from 'next/link';
-// 👉 NUEVO: Importamos trackEvent
 import { getProjects, trackEvent } from '@/lib/api'; 
 import { 
   Github, ExternalLink, Server, LayoutTemplate, 
@@ -71,7 +70,6 @@ export default function ProjectsPage() {
         setProjectsData(results);
         setLoading(false);
         
-        // 👉 NUEVO: Registramos que alguien entró a la página principal de proyectos
         trackEvent('view', 'projects_page');
       })
       .catch(error => {
@@ -96,7 +94,7 @@ export default function ProjectsPage() {
     currentPage * itemsPerPage
   );
 
-  // 👉 NUEVO: Función auxiliar para no repetir código en cada enlace
+
   const handleProjectClick = (slug: string) => {
     trackEvent('view', `project-${slug}`);
   };
@@ -121,7 +119,7 @@ export default function ProjectsPage() {
                 /projects
               </h1>
               <p className="max-w-xl text-sm md:text-base leading-relaxed text-gray-500">
-                Casos de estudio y proyectos destacados. Un recorrido por mis soluciones en <span className="text-gray-300">desarrollo web, arquitectura cloud y ciberseguridad</span>.
+                Featured projects and case studies. A journey through my solutions in web development, cloud architecture, and cybersecurity.
               </p>
             </div>
             <div className="text-xs font-mono uppercase tracking-widest text-gray-600 hidden md:block text-right">
@@ -304,9 +302,9 @@ export default function ProjectsPage() {
 
       <FadeInSection>
         <div className="max-w-[1400px] mx-auto px-4 mt-32 text-center">
-          <h3 className="text-2xl font-mono text-white mb-6">¿Buscás explorar código más específico?</h3>
+          <h3 className="text-2xl font-mono text-white mb-6">¿Looking for more specific code?</h3>
           <Link href="/lab" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors border-b border-gray-700 hover:border-white pb-1">
-            Visitá mi Laboratorio de Snippets <ArrowRight size={16} />
+            Visit my Snippet Lab<ArrowRight size={16} />
           </Link>
         </div>
       </FadeInSection>

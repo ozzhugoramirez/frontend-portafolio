@@ -6,9 +6,7 @@ export const api = axios.create({
   baseURL: API_URL,
 });
 
-// ==========================================
-// 🛡️ 1. INTERCEPTOR DE PETICIÓN (Envía la llave)
-// ==========================================
+
 api.interceptors.request.use((config) => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
   if (token) {
@@ -19,21 +17,16 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
-// ==========================================
-// 🛡️ 2. INTERCEPTOR DE RESPUESTA (Maneja los bloqueos)
-// ==========================================
+
 api.interceptors.response.use(
   (response) => {
     return response;
   },
   (error) => {
-    // Si Django nos tira un 401 (No autorizado)
     if (error.response && error.response.status === 401) {
       if (typeof window !== 'undefined') {
-        // Destruimos la llave vieja
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-        // Redirigimos al login (Evitamos loop infinito si ya estamos en login)
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';
         }
@@ -43,9 +36,7 @@ api.interceptors.response.use(
   }
 );
 
-// ==========================================
-// 🔑 AUTENTICACIÓN
-// ==========================================
+
 export const loginUser = async (credentials: any) => {
   const response = await api.post('/token/', credentials);
   if (response.data.access) {
@@ -55,9 +46,7 @@ export const loginUser = async (credentials: any) => {
   return response.data;
 };
 
-// ==========================================
-// 👤 PERFIL
-// ==========================================
+
 export const getProfile = async () => {
   const response = await api.get('/profile/');
   return response.data;
@@ -68,9 +57,7 @@ export const updateProfile = async (data: any) => {
   return response.data;
 };
 
-// ==========================================
-// 🚀 PROYECTOS
-// ==========================================
+
 export const getProjects = async (isAdmin: boolean = false) => {
   const url = isAdmin ? '/projects/?all=true' : '/projects/';
   const response = await api.get(url);
@@ -97,9 +84,7 @@ export const deleteProject = async (slug: string) => {
   return response.data;
 };
 
-// ==========================================
-// 🧪 LABORATORIO (SNIPPETS)
-// ==========================================
+
 export const getLabSnippets = async (isAdmin: boolean = false) => {
   const url = isAdmin ? '/lab/?all=true' : '/lab/';
   const response = await api.get(url);
@@ -123,33 +108,26 @@ export const deleteLabSnippet = async (id: number) => {
 
 
 
-// ==========================================
-// 📊 TELEMETRÍA Y DASHBOARD
-// ==========================================
 
-// Función silenciosa para la web pública (no falla ni frena la página si hay error)
 export const trackEvent = async (action: string, target: string) => {
   try {
-    // Si estás logueado como admin en la misma PC, evitamos registrar tus propias visitas para no ensuciar los datos
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     if (token) return; 
 
     await api.post('/track/', { action, target });
   } catch (error) {
-    console.error("Error de telemetría:", error); // Falla en silencio
+    console.error("Error de telemetría:", error); 
   }
 };
 
-// Función privada para tu Panel de Control
+
 export const getDashboardStats = async () => {
   const response = await api.get('/dashboard/stats/');
   return response.data;
 };
 
 
-// ==========================================
-// ✉️ CONTACTO
-// ==========================================
+
 
 export const sendContactMessage = async (data: { name: string, email: string, subject: string, message: string }) => {
  
@@ -157,7 +135,6 @@ export const sendContactMessage = async (data: { name: string, email: string, su
   return response.data;
 };
 
-// Agregalo al final de lib/api.ts
 export const getAdminMessages = async () => {
   const response = await api.get('/admin/messages/');
   return response.data;

@@ -2,19 +2,16 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import Navbar from '@/components/Navbar';
-// 1. Importamos la función desde nuestro archivo de servicios centralizado
 import { getProfile } from '@/lib/api'; 
 import { 
   User, Code2, ShieldCheck, Zap, HeartPulse, 
   MapPin, GraduationCap, Terminal, Languages, ArrowRight 
 } from 'lucide-react';
 
-// --- CONFIGURACIÓN ---
-// Obtenemos la URL base desde las variables de entorno para las imágenes
+
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// --- DICCIONARIO DE ÍCONOS ---
-// Traduce el string que viene de Django al ícono de Lucide
+
 const ICON_MAP: Record<string, React.ReactNode> = {
   shield: <ShieldCheck size={24} />,
   zap: <Zap size={24} />,
@@ -52,7 +49,6 @@ export default function AboutPage() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // --- OBTENER DATOS DE DJANGO MEDIANTE EL SERVICIO ---
   useEffect(() => {
     getProfile()
       .then(data => {
@@ -208,15 +204,7 @@ export default function AboutPage() {
           </FadeInSection>
         </section>
 
-        {/* --- CTA FINAL --- */}
-        <FadeInSection>
-          <div className="mt-40 text-center">
-            <h3 className="text-3xl md:text-5xl font-mono text-white mb-8 tracking-tighter">¿Hablamos del próximo proyecto?</h3>
-            <a href="mailto:tu-email@ejemplo.com" className="inline-flex items-center gap-3 bg-white text-black px-10 py-4 rounded-full text-sm font-medium hover:bg-gray-200 transition-all hover:gap-5">
-              Enviar un mensaje <ArrowRight size={18} />
-            </a>
-          </div>
-        </FadeInSection>
+        
 
       </main>
     </div>

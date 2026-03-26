@@ -33,7 +33,6 @@ function FadeInSection({ children, delay = 0 }: { children: React.ReactNode, del
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  // 👉 NUEVO: Agregamos el estado 'error'
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,14 +45,14 @@ export default function ContactPage() {
       setStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
       
-      // A los 4.5 segundos vuelve al formulario limpio
+      
       setTimeout(() => setStatus('idle'), 4500);
       
     } catch (error) {
       console.error("Error transmitiendo el mensaje:", error);
       setStatus('error');
       
-      // Ocultamos el error a los 5 segundos para que pueda reintentar
+     
       setTimeout(() => setStatus('idle'), 5000);
     }
   };
@@ -147,7 +146,7 @@ export default function ContactPage() {
                 {/* Efecto de luz de fondo */}
                 <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-                {/* 👉 NUEVO: PANTALLA DE ÉXITO (Reemplaza el formulario al enviar) */}
+                
                 {status === 'success' ? (
                   <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in zoom-in-95 fade-in duration-500">
                     <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mb-6">
@@ -167,7 +166,7 @@ export default function ContactPage() {
                   <form onSubmit={handleSubmit} className="relative z-10 animate-in fade-in duration-500">
                     <h3 className="text-xl font-medium text-white mb-8">Enviar un mensaje</h3>
 
-                    {/* 👉 NUEVO: BANNER DE ERROR ESTILIZADO */}
+                  
                     {status === 'error' && (
                       <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2 fade-in">
                         <AlertTriangle size={20} className="text-red-500 shrink-0 mt-0.5" />

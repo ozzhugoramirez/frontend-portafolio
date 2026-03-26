@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'storage.googleapis.com',
         port: '',
-        // Reemplazamos esto con la ruta exacta de tu bucket
         pathname: '/media-portfolio-seba/**', 
       },
     ],

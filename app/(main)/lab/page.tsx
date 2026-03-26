@@ -5,7 +5,6 @@ import Navbar from '@/components/Navbar';
 import { getLabSnippets } from '@/lib/api';
 import { Search, Terminal, Shield, Cloud, Sparkles, Copy, Check, ChevronRight, ChevronLeft, Hash, Clock } from 'lucide-react';
 
-// --- LIBRERÍA DE COLOREO ---
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dracula } from 'react-syntax-highlighter/dist/esm/styles/prism'; 
 
@@ -102,7 +101,7 @@ export default function LabPage() {
       <header className="pt-32 pb-12 px-4 md:px-8 lg:px-12 max-w-[1400px] mx-auto border-b border-white/5">
         <h1 className="text-4xl md:text-5xl font-mono text-white tracking-tighter mb-4">/lab</h1>
         <p className="max-w-xl text-sm leading-relaxed text-gray-500">
-          Repositorio de configuraciones críticas, fragmentos en C++ y scripts de <span className="text-indigo-400">automatización</span>.
+          Repository of critical configurations, C++ snippets, and <span className="text-indigo-400">automation</span> scripts.
         </p>
       </header>
 
