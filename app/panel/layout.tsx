@@ -71,8 +71,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div>
             <p className="px-4 text-[9px] font-mono uppercase tracking-[0.3em] text-gray-600 mb-4">Core</p>
             <div className="space-y-1">
-              <AdminNavTab href="/admin" icon={<LayoutDashboard size={16} />} label="Dashboard" active={pathname === '/admin'} />
-              <AdminNavTab href="/admin/profile" icon={<UserCircle size={16} />} label="Identity Manager" active={pathname === '/admin/profile'} />
+              <AdminNavTab href="/panel" icon={<LayoutDashboard size={16} />} label="Dashboard" active={pathname === '/admin'} />
+              <AdminNavTab href="/panel/profile" icon={<UserCircle size={16} />} label="Identity Manager" active={pathname === '/admin/profile'} />
               <AdminNavTab href="/" icon={<Globe size={16} />} label="Live Site" active={false} external />
             </div>
           </div>
@@ -80,8 +80,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div>
             <p className="px-4 text-[9px] font-mono uppercase tracking-[0.3em] text-gray-600 mb-4">Web Content</p>
             <div className="space-y-1">
-              <AdminNavTab href="/admin/projects" icon={<FolderKanban size={16} />} label="Projects" active={pathname === '/admin/projects'} />
-              <AdminNavTab href="/admin/lab" icon={<Beaker size={16} />} label="Lab Snippets" active={pathname === '/admin/lab'} />
+              <AdminNavTab href="/panel/projects" icon={<FolderKanban size={16} />} label="Projects" active={pathname === '/admin/projects'} />
+              <AdminNavTab href="/panel/lab" icon={<Beaker size={16} />} label="Lab Snippets" active={pathname === '/admin/lab'} />
             </div>
           </div>
 
@@ -90,14 +90,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Lock size={10} /> The Forge (Private)
             </p>
             <div className="space-y-1">
-              <AdminNavTab href="/admin/forge" icon={<Zap size={16} />} label="Internal Repos" active={pathname === '/admin/forge'} />
-              <AdminNavTab href="/admin/security" icon={<Key size={16} />} label="Privacy Keys" active={pathname === '/admin/security'} />
+              <AdminNavTab href="/panel/forge" icon={<Zap size={16} />} label="Internal Repos" active={pathname === '/admin/forge'} />
+              <AdminNavTab href="/panel/security" icon={<Key size={16} />} label="Privacy Keys" active={pathname === '/admin/security'} />
             </div>
           </div>
 
           <div>
             <p className="px-4 text-[9px] font-mono uppercase tracking-[0.3em] text-gray-600 mb-4">System</p>
-            <AdminNavTab href="/admin/settings" icon={<Settings size={16} />} label="Configuración" active={pathname === '/admin/settings'} />
+            <AdminNavTab href="/panel/settings" icon={<Settings size={16} />} label="Configuración" active={pathname === '/admin/settings'} />
           </div>
 
         </nav>
