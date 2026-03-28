@@ -246,7 +246,7 @@ export default function Portfolio() {
                   />
                 ))
               ) : (
-                <div className="text-xs text-gray-600 font-mono italic">No hay certificaciones cargadas.</div>
+                <div className="text-xs text-gray-600 font-mono italic"></div>
               )}
             </div>
           </FadeInSection>
