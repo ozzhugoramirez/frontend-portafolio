@@ -6,7 +6,7 @@ import { Save, Upload, Info, BookOpen, Cpu, FileText, CheckCircle, Image as Imag
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// --- PLANTILLAS JSON POR DEFECTO ---
+
 const DEFAULT_PHILOSOPHY = [
   { "icon": "shield", "title": "Ejemplo Título", "desc": "Descripción de tu filosofía..." }
 ];
@@ -38,13 +38,11 @@ export default function AdminProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
-  // Agregué una pestaña nueva 'links' para las redes y certificados
   const [activeSubTab, setActiveSubTab] = useState<'general' | 'bio' | 'links' | 'json'>('general');
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     getProfile().then(data => {
-      // Formateamos todos los arrays/objetos a String con indentación (2) para que se vean lindos en los textareas
       const formattedData = {
         ...data,
         work_philosophy: data.work_philosophy?.length ? JSON.stringify(data.work_philosophy, null, 2) : JSON.stringify(DEFAULT_PHILOSOPHY, null, 2),
@@ -101,7 +99,6 @@ export default function AdminProfilePage() {
     dataToSend.append('origin', formData.origin || '');
     dataToSend.append('languages', formData.languages || '');
 
-    // Parseamos los JSON de vuelta a objetos reales antes de enviarlos a Django
     try {
       dataToSend.append('work_philosophy', JSON.stringify(JSON.parse(formData.work_philosophy)));
       dataToSend.append('education', JSON.stringify(JSON.parse(formData.education)));
@@ -133,41 +130,41 @@ export default function AdminProfilePage() {
     }
   };
 
-  if (loading) return <div className="p-12 font-mono text-xs animate-pulse text-gray-500 uppercase tracking-widest">Iniciando módulos de identidad...</div>;
+  if (loading) return <div className="p-6 md:p-12 font-mono text-xs animate-pulse text-gray-500 uppercase tracking-widest">Iniciando módulos de identidad...</div>;
 
   const canSave = isModified();
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
       
-      {/* HEADER */}
-      <header className="p-8 border-b border-white/5 flex justify-between items-center bg-[#080809]">
+      {/* HEADER: Adaptado para apilarse en móvil */}
+      <header className="p-4 md:p-8 border-b border-white/5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-[#080809]">
         <div>
-          <h1 className="text-white text-xl font-mono tracking-tighter uppercase italic">Identity_Manager</h1>
-          <p className="text-[10px] text-gray-600 font-mono tracking-widest mt-1">Configuración del perfil público y archivos críticos</p>
+          <h1 className="text-white text-xl md:text-2xl font-mono tracking-tighter uppercase italic">Identity_Manager</h1>
+          <p className="text-[10px] text-gray-600 font-mono tracking-widest mt-1">Configuración del perfil público y archivos</p>
         </div>
         <button 
           onClick={handleSubmit}
           disabled={!canSave || saving}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-mono transition-all ${canSave ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'}`}
+          className={`w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 sm:py-2.5 rounded-xl text-xs font-mono transition-all ${canSave ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'}`}
         >
           {saving ? 'Syncing...' : status === 'success' ? <><CheckCircle size={14}/> Updated</> : <><Save size={14}/> Save Changes</>}
         </button>
       </header>
 
-      {/* TABS DE NAVEGACIÓN */}
-      <nav className="px-8 pt-4 flex gap-6 border-b border-white/5 bg-[#080809]">
+      {/* TABS DE NAVEGACIÓN: Scroll horizontal en móvil */}
+      <nav className="px-4 md:px-8 pt-4 flex gap-4 md:gap-6 border-b border-white/5 bg-[#080809] overflow-x-auto custom-scrollbar whitespace-nowrap">
         <SubTab active={activeSubTab === 'general'} onClick={() => setActiveSubTab('general')} icon={<Info size={14}/>} label="General" />
         <SubTab active={activeSubTab === 'bio'} onClick={() => setActiveSubTab('bio')} icon={<FileText size={14}/>} label="Biografía" />
         <SubTab active={activeSubTab === 'links'} onClick={() => setActiveSubTab('links')} icon={<Link2 size={14}/>} label="Redes & Certs" />
         <SubTab active={activeSubTab === 'json'} onClick={() => setActiveSubTab('json')} icon={<Cpu size={14}/>} label="Data Arrays" />
       </nav>
 
-      <form className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
+      <form className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 custom-scrollbar">
         
-        {/* PESTAÑA: GENERAL (Queda igual, fotos, cv y hero) */}
+        {/* PESTAÑA: GENERAL */}
         {activeSubTab === 'general' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-in fade-in duration-500">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8 animate-in fade-in duration-500">
             <div className="space-y-4">
               <InputGroup label="Hero Title" name="hero_title" value={formData.hero_title} onChange={handleChange} />
               <InputGroup label="Location" name="location" value={formData.location} onChange={handleChange} />
@@ -176,42 +173,42 @@ export default function AdminProfilePage() {
             </div>
 
             <div className="space-y-6">
-              {/* Photo Upload */}
-              <div className="p-6 bg-[#0c0c0d] border border-white/5 rounded-2xl relative overflow-hidden group">
+            
+              <div className="p-5 md:p-6 bg-[#0c0c0d] border border-white/5 rounded-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><ImageIcon size={64} /></div>
-                <label className="text-[10px] font-mono text-indigo-400 uppercase block mb-6 relative z-10">Avatar / Profile Photo</label>
-                <div className="flex items-center gap-6 relative z-10">
+                <label className="text-[10px] font-mono text-indigo-400 uppercase block mb-4 md:mb-6 relative z-10">Avatar / Profile Photo</label>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 md:gap-6 relative z-10">
                   <div className="w-20 h-20 rounded-full bg-black border-2 border-white/10 overflow-hidden flex items-center justify-center flex-shrink-0">
                     {photoPreview ? <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" /> : <UserCircle size={32} className="text-gray-600" />}
                   </div>
-                  <div>
+                  <div className="w-full sm:w-auto">
                     <input type="file" id="photo-upload" className="hidden" accept="image/*" onChange={handlePhotoChange} />
-                    <label htmlFor="photo-upload" className="cursor-pointer inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-4 py-2 rounded-lg text-xs font-mono transition-all">
+                    <label htmlFor="photo-upload" className="w-full sm:w-auto cursor-pointer inline-flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-4 py-3 sm:py-2 rounded-lg text-xs font-mono transition-all">
                       <Upload size={14} /> {photoFile ? 'Cambiar Selección' : 'Subir Nueva Foto'}
                     </label>
                   </div>
                 </div>
               </div>
 
-              {/* CV Upload */}
-              <div className="p-6 bg-[#0c0c0d] border border-white/5 rounded-2xl relative overflow-hidden group">
+           
+              <div className="p-5 md:p-6 bg-[#0c0c0d] border border-white/5 rounded-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><BookOpen size={64} /></div>
-                <label className="text-[10px] font-mono text-indigo-400 uppercase block mb-6 relative z-10">Curriculum Vitae (PDF)</label>
-                <div className="flex items-center gap-4 relative z-10">
+                <label className="text-[10px] font-mono text-indigo-400 uppercase block mb-4 md:mb-6 relative z-10">Curriculum Vitae (PDF)</label>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 relative z-10">
                   <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center flex-shrink-0 border border-white/5">
                     {cvFile || formData.cv_file ? <FileCheck size={20} className="text-emerald-500" /> : <FileText size={20} className="text-gray-500" />}
                   </div>
-                  <div className="flex-1 flex flex-col items-start gap-2">
+                  <div className="flex-1 flex flex-col items-start gap-2 w-full">
                     <input type="file" id="cv-upload" className="hidden" accept=".pdf" onChange={handleCvChange} />
-                    <label htmlFor="cv-upload" className="cursor-pointer inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-4 py-2 rounded-lg text-xs font-mono transition-all">
+                    <label htmlFor="cv-upload" className="w-full sm:w-auto cursor-pointer inline-flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-4 py-3 sm:py-2 rounded-lg text-xs font-mono transition-all">
                       <Upload size={14} /> {cvFile ? 'Cambiar PDF' : 'Upload PDF'}
                     </label>
                     
                     {cvFile ? (
-                      <p className="text-[9px] font-mono text-emerald-500 mt-1">Listo para guardar: {cvFile.name}</p>
+                      <p className="text-[9px] font-mono text-emerald-500 mt-1">Listo: {cvFile.name}</p>
                     ) : formData.cv_file ? (
-                      <a href={formData.cv_file.startsWith('http') ? formData.cv_file : `${BACKEND_URL}${formData.cv_file}`} target="_blank" rel="noreferrer" className="text-[10px] font-mono text-indigo-400 hover:text-indigo-300 flex items-center gap-1 mt-1 transition-colors">
-                        <ExternalLink size={10} /> Ver CV actual en nueva pestaña
+                      <a href={formData.cv_file.startsWith('http') ? formData.cv_file : `${BACKEND_URL}${formData.cv_file}`} target="_blank" rel="noreferrer" className="text-[10px] font-mono text-indigo-400 hover:text-indigo-300 flex items-center gap-1 mt-1 transition-colors break-all">
+                        <ExternalLink size={10} className="flex-shrink-0" /> Ver CV actual
                       </a>
                     ) : (
                       <p className="text-[9px] font-mono text-gray-500 mt-1">No hay CV cargado</p>
@@ -223,7 +220,7 @@ export default function AdminProfilePage() {
           </div>
         )}
 
-        {/* PESTAÑA: BIO (Queda igual) */}
+       
         {activeSubTab === 'bio' && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div className="space-y-2">
@@ -232,23 +229,22 @@ export default function AdminProfilePage() {
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-mono text-gray-600 uppercase tracking-widest px-2">Bio Párrafo 2 (Expandido)</label>
-              <textarea name="bio_p2" value={formData.bio_p2} onChange={handleChange} rows={4} className="w-full bg-[#0c0c0d] border border-white/5 rounded-2xl p-4 text-sm text-gray-300 outline-none focus:border-indigo-500/50 transition-all resize-none" />
+              <textarea name="bio_p2" value={formData.bio_p2} onChange={handleChange} rows={6} className="w-full bg-[#0c0c0d] border border-white/5 rounded-2xl p-4 text-sm text-gray-300 outline-none focus:border-indigo-500/50 transition-all resize-none" />
             </div>
           </div>
         )}
 
-        {/* ⚠️ PESTAÑA NUEVA: REDES SOCIALES Y CERTIFICADOS (Edición JSON rápida) */}
+        {/* PESTAÑA: REDES SOCIALES Y CERTIFICADOS */}
         {activeSubTab === 'links' && (
-          <div className="space-y-8 animate-in fade-in duration-500">
+          <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
             <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex gap-3">
               <Award size={16} className="text-emerald-400 flex-shrink-0 mt-0.5" />
-              <p className="text-[11px] font-mono text-emerald-200/70">
+              <p className="text-[11px] font-mono text-emerald-200/70 leading-relaxed">
                 Asegurate de que las URLs comiencen con <code>https://</code>. Si dejás el campo de una red social vacío o con un <code>#</code>, el botón se ocultará automáticamente en tu Home.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* REDES SOCIALES (Es un Objeto JSON {}) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
               <JSONArea 
                 label="Social Links (Objeto JSON)" 
                 name="social_links" 
@@ -256,8 +252,6 @@ export default function AdminProfilePage() {
                 onChange={handleChange} 
                 colorClass="text-indigo-400"
               />
-              
-              {/* CERTIFICADOS (Es un Array JSON []) */}
               <JSONArea 
                 label="Certifications (Array JSON)" 
                 name="certifications" 
@@ -271,15 +265,15 @@ export default function AdminProfilePage() {
 
         {/* PESTAÑA: DATA ARRAYS ORIGINALES */}
         {activeSubTab === 'json' && (
-          <div className="space-y-8 animate-in fade-in duration-500">
+          <div className="space-y-6 md:space-y-8 animate-in fade-in duration-500">
             <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex gap-3">
               <Info size={16} className="text-indigo-400 flex-shrink-0 mt-0.5" />
-              <p className="text-[11px] font-mono text-indigo-200/70">
+              <p className="text-[11px] font-mono text-indigo-200/70 leading-relaxed">
                 Respetá las comillas dobles y la estructura de corchetes <code>[ ]</code>. Si rompés el formato, el sistema evitará que lo guardes.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
               <JSONArea label="Education Array" name="education" value={formData.education} onChange={handleChange} colorClass="text-yellow-500/80" />
               <JSONArea label="Arsenal Array" name="arsenal" value={formData.arsenal} onChange={handleChange} colorClass="text-cyan-500/80" />
             </div>
@@ -302,7 +296,6 @@ function InputGroup({ label, name, value, onChange }: any) {
   );
 }
 
-// Actualicé JSONArea para aceptar un "colorClass" y que cada bloque de código tenga un tono distinto
 function JSONArea({ label, name, value, onChange, colorClass = "text-emerald-500/80" }: any) {
   return (
     <div className="space-y-2">
@@ -321,7 +314,7 @@ function JSONArea({ label, name, value, onChange, colorClass = "text-emerald-500
 
 function SubTab({ active, onClick, icon, label }: any) {
   return (
-    <button type="button" onClick={onClick} className={`pb-4 px-2 flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest transition-all ${active ? 'text-white border-b-2 border-indigo-500' : 'text-gray-600 hover:text-gray-400'}`}>
+    <button type="button" onClick={onClick} className={`pb-4 px-2 flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest transition-all whitespace-nowrap flex-shrink-0 ${active ? 'text-white border-b-2 border-indigo-500' : 'text-gray-600 hover:text-gray-400'}`}>
       {icon} {label}
     </button>
   );

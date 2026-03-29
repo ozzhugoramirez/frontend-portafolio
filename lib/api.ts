@@ -108,9 +108,9 @@ export const deleteLabSnippet = async (id: number) => {
 
 
 
-
 export const trackEvent = async (action: string, target: string) => {
   try {
+    
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     if (token) return; 
 
@@ -120,17 +120,20 @@ export const trackEvent = async (action: string, target: string) => {
   }
 };
 
-
 export const getDashboardStats = async () => {
   const response = await api.get('/dashboard/stats/');
+  return response.data;
+};
+
+export const clearTelemetry = async () => {
+  const response = await api.delete('/dashboard/stats/clear/');
   return response.data;
 };
 
 
 
 
-export const sendContactMessage = async (data: { name: string, email: string, subject: string, message: string }) => {
- 
+export const sendContactMessage = async (data: { name: string, email: string, subject: string, message: string, recaptchaToken: string }) => {
   const response = await api.post('/contact/', data);
   return response.data;
 };
@@ -139,6 +142,7 @@ export const getAdminMessages = async () => {
   const response = await api.get('/admin/messages/');
   return response.data;
 };
+
 export const markMessageAsRead = async (id: number) => {
   const response = await api.patch(`/admin/messages/${id}/read/`);
   return response.data;

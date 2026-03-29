@@ -3,8 +3,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Mail, MapPin, Send, ShieldCheck, Terminal, Github, Linkedin, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { sendContactMessage } from '@/lib/api';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
-// --- ANIMACIÓN AL SCROLLEAR ---
 function FadeInSection({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) {
   const [isVisible, setVisible] = useState(false);
   const domRef = useRef<HTMLDivElement>(null);
@@ -34,32 +34,48 @@ function FadeInSection({ children, delay = 0 }: { children: React.ReactNode, del
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  
+ 
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('sending'); 
     
+    if (!executeRecaptcha) {
+      console.error("El sistema de seguridad reCAPTCHA no está listo");
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 5000);
+      return;
+    }
+    
     try {
-      await sendContactMessage(formData);
+      
+      const token = await executeRecaptcha('contact_form');
+      
+      
+      const payload_completo = {
+        ...formData,
+        recaptchaToken: token
+      };
+
+      
+      await sendContactMessage(payload_completo);
       
       setStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '' });
-      
       
       setTimeout(() => setStatus('idle'), 4500);
       
     } catch (error) {
       console.error("Error transmitiendo el mensaje:", error);
       setStatus('error');
-      
-     
       setTimeout(() => setStatus('idle'), 5000);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    // Si estaba en error y el usuario empieza a escribir, borramos el error
     if (status === 'error') setStatus('idle');
   };
 
@@ -107,7 +123,7 @@ export default function ContactPage() {
 
                 <div className="group">
                   <h4 className="text-[10px] font-mono uppercase tracking-widest text-gray-600 mb-2">Transmisión Directa</h4>
-                  <a href="mailto:tuemail@ejemplo.com" className="flex items-start gap-4 text-gray-300 hover:text-white transition-colors">
+                  <a href="mailto:mycorreohugo@gmail.com" className="flex items-start gap-4 text-gray-300 hover:text-white transition-colors">
                     <div className="p-3 bg-[#121214] border border-gray-800 rounded-xl group-hover:border-indigo-500/50 transition-colors">
                       <Mail size={20} className="text-gray-400 group-hover:text-indigo-400 transition-colors" />
                     </div>
@@ -124,7 +140,7 @@ export default function ContactPage() {
                 <h4 className="text-[10px] font-mono uppercase tracking-widest text-gray-600 mb-4">Redes de Conexión</h4>
                 <div className="flex gap-4">
                   <SocialCircle icon={<Github size={18} />} link="https://github.com/ozzhugoramirez" />
-                  <SocialCircle icon={<Linkedin size={18} />} link="https://www.linkedin.com/in/hug-ramirez/" />
+                  <SocialCircle icon={<Linkedin size={18} />} link="https://www.linkedin.com/in/seba-villalba/" />
                 </div>
               </div>
 
@@ -146,7 +162,6 @@ export default function ContactPage() {
                 {/* Efecto de luz de fondo */}
                 <div className="absolute -top-20 -right-20 w-64 h-64 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
-                
                 {status === 'success' ? (
                   <div className="relative z-10 flex flex-col items-center justify-center text-center animate-in zoom-in-95 fade-in duration-500">
                     <div className="w-20 h-20 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mb-6">
@@ -166,19 +181,17 @@ export default function ContactPage() {
                   <form onSubmit={handleSubmit} className="relative z-10 animate-in fade-in duration-500">
                     <h3 className="text-xl font-medium text-white mb-8">Enviar un mensaje</h3>
 
-                  
                     {status === 'error' && (
                       <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3 animate-in slide-in-from-top-2 fade-in">
                         <AlertTriangle size={20} className="text-red-500 shrink-0 mt-0.5" />
                         <div>
                           <p className="text-sm font-medium text-red-500">Falla de Transmisión</p>
-                          <p className="text-xs text-red-400/80 mt-1">El servidor no responde. Por favor, intentá de nuevo o usá el correo directo.</p>
+                          <p className="text-xs text-red-400/80 mt-1">El servidor no responde o fuiste detectado como bot. Por favor, intentá de nuevo.</p>
                         </div>
                       </div>
                     )}
 
                     <div className="space-y-6">
-                      {/* Fila: Nombre y Email */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label htmlFor="name" className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Nombre / Entidad</label>
@@ -210,7 +223,6 @@ export default function ContactPage() {
                         </div>
                       </div>
 
-                      {/* Asunto */}
                       <div className="space-y-2">
                         <label htmlFor="subject" className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Asunto</label>
                         <input 
@@ -226,7 +238,6 @@ export default function ContactPage() {
                         />
                       </div>
 
-                      {/* Mensaje */}
                       <div className="space-y-2">
                         <label htmlFor="message" className="text-[10px] font-mono uppercase tracking-widest text-gray-500">Mensaje (Payload)</label>
                         <textarea 
@@ -242,7 +253,6 @@ export default function ContactPage() {
                         ></textarea>
                       </div>
 
-                      {/* Botón Submit */}
                       <button 
                         type="submit" 
                         disabled={status === 'sending'}
@@ -265,6 +275,7 @@ export default function ContactPage() {
           </div>
 
         </div>
+        
       </div>
     </div>
   );

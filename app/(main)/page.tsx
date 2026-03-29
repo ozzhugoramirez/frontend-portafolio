@@ -347,7 +347,7 @@ function CredentialRow({ title, issuer, date, link }: { title: string, issuer: s
           href={link} 
           target="_blank" 
           rel="noopener noreferrer" 
-          onClick={() => trackEvent('click', `credential-${title.toLowerCase().replace(/\s+/g, '-')}`)} // 👉 NUEVO: Registra clicks en certificados
+          onClick={() => trackEvent('click', `credential-${title.toLowerCase().replace(/\s+/g, '-')}`)} 
           className="flex items-center gap-2 text-xs border border-gray-700 px-4 py-2 rounded-full hover:text-white hover:border-white transition-colors w-full md:w-auto justify-center md:justify-start"
         >
           Validar Credencial <ExternalLink size={14} />

@@ -116,21 +116,21 @@ export default function AdminLabPage() {
     }
   };
 
-  if (loading && view === 'list') return <div className="p-12 font-mono text-xs text-gray-500 uppercase tracking-widest animate-pulse">Sincronizando Lab...</div>;
+  if (loading && view === 'list') return <div className="p-6 md:p-12 font-mono text-xs text-gray-500 uppercase tracking-widest animate-pulse">Sincronizando Lab...</div>;
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-[#050506] relative">
       
       {/* MODAL DE ELIMINACIÓN */}
       {deleteModal.isOpen && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#0c0c0d] border border-red-900/50 p-8 rounded-3xl shadow-2xl shadow-red-900/20 max-w-sm w-full mx-4">
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 px-4">
+          <div className="bg-[#0c0c0d] border border-red-900/50 p-6 md:p-8 rounded-3xl shadow-2xl shadow-red-900/20 max-w-sm w-full transform transition-all scale-100">
             <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500 mb-6">
               <AlertTriangle size={24} />
             </div>
             <h3 className="text-xl font-medium text-white mb-2">Eliminar Snippet</h3>
             <p className="text-sm text-gray-400 mb-8 leading-relaxed">
-              Estás por eliminar <span className="text-red-400 font-mono">"{deleteModal.title}"</span>. Esta acción es irreversible.
+              Estás por eliminar <span className="text-red-400 font-mono break-all">"{deleteModal.title}"</span>. Esta acción es irreversible.
             </p>
             <div className="flex gap-4">
               <button onClick={() => setDeleteModal({isOpen: false, id: 0, title: ''})} className="flex-1 px-4 py-3 rounded-xl border border-white/10 text-gray-300 text-xs font-mono hover:bg-white/5 transition-colors">Cancelar</button>
@@ -141,21 +141,21 @@ export default function AdminLabPage() {
       )}
 
       {/* HEADER PRINCIPAL */}
-      <header className="p-8 border-b border-white/5 flex justify-between items-center bg-[#080809]">
+      <header className="p-4 md:p-8 border-b border-white/5 flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 bg-[#080809]">
         <div>
-          <h1 className="text-white text-xl font-mono tracking-tighter uppercase italic flex items-center gap-3">
+          <h1 className="text-white text-xl md:text-2xl font-mono tracking-tighter uppercase italic flex items-center gap-3">
             <FlaskConical size={20} className="text-indigo-500" /> Lab_Control
           </h1>
         </div>
         
         {view === 'list' ? (
-          <button onClick={() => handleOpenForm()} className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-xs font-mono hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20">
+          <button onClick={() => handleOpenForm()} className="w-full md:w-auto flex justify-center items-center gap-2 bg-indigo-600 text-white px-5 py-3 md:py-2.5 rounded-xl text-xs font-mono hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-500/20">
             <Plus size={14} /> Nuevo Snippet
           </button>
         ) : (
-          <div className="flex items-center gap-4">
-            <button onClick={() => setView('list')} className="text-xs font-mono text-gray-500 hover:text-white transition-colors flex items-center gap-2"><ArrowLeft size={14} /> Cancelar</button>
-            <button onClick={handleSubmit} disabled={saving} className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-2.5 rounded-xl text-xs font-mono hover:bg-emerald-500 transition-all disabled:opacity-50">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <button onClick={() => setView('list')} className="w-full sm:w-auto flex justify-center items-center gap-2 text-xs font-mono text-gray-400 hover:text-white transition-colors bg-white/5 sm:bg-transparent px-4 py-3 sm:py-0 rounded-xl sm:rounded-none"><ArrowLeft size={14} /> Cancelar</button>
+            <button onClick={handleSubmit} disabled={saving} className="w-full sm:w-auto flex justify-center items-center gap-2 bg-emerald-600 text-white px-6 py-3 md:py-2.5 rounded-xl text-xs font-mono hover:bg-emerald-500 transition-all disabled:opacity-50">
               {saving ? 'Guardando...' : status === 'success' ? <><CheckCircle size={14}/> OK</> : <><Save size={14}/> Guardar</>}
             </button>
           </div>
@@ -164,27 +164,32 @@ export default function AdminLabPage() {
 
       {/* VISTA 1: LISTA */}
       {view === 'list' && (
-        <main className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-          <div className="border border-white/5 rounded-2xl overflow-hidden bg-[#0d0d0f]/50">
-            <table className="w-full text-left text-[11px] font-mono">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar">
+          <div className="border border-white/5 rounded-2xl overflow-x-auto bg-[#0d0d0f]/50 custom-scrollbar">
+            <table className="w-full text-left text-[11px] font-mono min-w-[600px]">
               <thead className="bg-[#080809] text-gray-500 uppercase tracking-widest border-b border-white/5">
-                <tr><th className="px-6 py-4 font-medium">Título</th><th className="px-6 py-4 font-medium">Categoría</th><th className="px-6 py-4 font-medium">Lenguaje</th><th className="px-6 py-4 font-medium text-right">Acciones</th></tr>
+                <tr>
+                  <th className="px-6 py-4 font-medium">Título</th>
+                  <th className="px-6 py-4 font-medium">Categoría</th>
+                  <th className="px-6 py-4 font-medium">Lenguaje</th>
+                  <th className="px-6 py-4 font-medium text-right">Acciones</th>
+                </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {snippets.map((s) => (
                   <tr key={s.id} className="hover:bg-white/[0.02] transition-colors group">
                     <td className="px-6 py-4">
-                      <div className="text-white font-medium flex items-center gap-2">
+                      <div className="text-white font-medium flex items-center gap-2 text-sm md:text-[11px]">
                         {s.title} 
-                        {!s.is_public && <span title="Oculto"><EyeOff size={12} className="text-gray-600" /></span>}
+                        {!s.is_public && <span title="Oculto"><EyeOff size={14} className="text-gray-600" /></span>}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-indigo-400">{s.category}</td>
                     <td className="px-6 py-4 text-emerald-500/80">{s.language}</td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleOpenForm(s)} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><Edit3 size={14}/></button>
-                        <button onClick={() => handleDeleteClick(s.id, s.title)} className="p-2 hover:bg-red-500/10 rounded-lg text-gray-400 hover:text-red-500 transition-all"><Trash2 size={14}/></button>
+                      <div className="flex justify-end gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleOpenForm(s)} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-all"><Edit3 size={16} /></button>
+                        <button onClick={() => handleDeleteClick(s.id, s.title)} className="p-2 hover:bg-red-500/10 rounded-lg text-gray-400 hover:text-red-500 transition-all"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   </tr>
@@ -199,15 +204,15 @@ export default function AdminLabPage() {
       {/* VISTA 2: FORMULARIO */}
       {view === 'form' && (
         <>
-          <nav className="px-8 pt-4 flex gap-6 border-b border-white/5 bg-[#080809]">
+          <nav className="px-4 md:px-8 pt-4 flex gap-4 md:gap-6 border-b border-white/5 bg-[#080809] overflow-x-auto custom-scrollbar whitespace-nowrap">
             <SubTab active={activeTab === 'general'} onClick={() => setActiveTab('general')} icon={<FileText size={14}/>} label="Info & Tags" />
             <SubTab active={activeTab === 'code'} onClick={() => setActiveTab('code')} icon={<Code2 size={14}/>} label="Editor de Código" />
           </nav>
 
-          <form className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar pb-32">
+          <form className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 custom-scrollbar pb-32">
             
             {activeTab === 'general' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 animate-in fade-in">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 animate-in fade-in">
                 <div className="space-y-4">
                   <InputGroup label="Título del Snippet" name="title" value={formData.title} onChange={handleChange} placeholder="Ej: Fix para UFW" />
                   <InputGroup label="Categoría (Para el Sidebar)" name="category" value={formData.category} onChange={handleChange} placeholder="Ej: Ciberseguridad" />
@@ -220,23 +225,23 @@ export default function AdminLabPage() {
 
                   <div className="p-4 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between mt-4">
                     <span className="text-xs font-mono text-gray-300">Visible en el Lab Público</span>
-                    <input type="checkbox" name="is_public" checked={formData.is_public} onChange={handleChange} className="w-4 h-4 accent-emerald-500" />
+                    <input type="checkbox" name="is_public" checked={formData.is_public} onChange={handleChange} className="w-5 h-5 md:w-4 md:h-4 accent-emerald-500" />
                   </div>
                 </div>
 
                 {/* CONSTRUCTOR DE TAGS */}
                 <div>
-                  <div className="bg-[#0c0c0d] border border-white/5 rounded-2xl p-6">
+                  <div className="bg-[#0c0c0d] border border-white/5 rounded-2xl p-4 md:p-6">
                     <div className="flex justify-between items-center mb-4">
                       <h4 className="text-xs font-mono text-indigo-400 uppercase tracking-widest">Etiquetas (Tags)</h4>
-                      <button type="button" onClick={addTag} className="bg-white/5 hover:bg-white/10 p-1.5 rounded-md text-white transition-colors"><Plus size={14}/></button>
+                      <button type="button" onClick={addTag} className="bg-white/5 hover:bg-white/10 p-2 sm:p-1.5 rounded-md text-white transition-colors"><Plus size={14}/></button>
                     </div>
                     <div className="space-y-3">
                       {formData.tags.map((tag: string, idx: number) => (
                         <div key={idx} className="flex gap-2 items-center">
-                          <span className="text-[10px] text-gray-600 font-mono">#</span>
-                          <input type="text" value={tag} onChange={(e) => handleTagChange(idx, e.target.value)} placeholder="Ej: linux" className="flex-1 bg-white/5 text-sm p-2 rounded-lg outline-none border border-transparent focus:border-indigo-500/50 text-white" />
-                          <button type="button" onClick={() => removeTag(idx)} className="text-gray-600 hover:text-red-500 transition-colors p-2"><X size={14}/></button>
+                          <span className="text-[10px] text-gray-600 font-mono hidden sm:inline">#</span>
+                          <input type="text" value={tag} onChange={(e) => handleTagChange(idx, e.target.value)} placeholder="Ej: linux" className="flex-1 w-full bg-white/5 text-sm p-3 sm:p-2 rounded-lg outline-none border border-transparent focus:border-indigo-500/50 text-white" />
+                          <button type="button" onClick={() => removeTag(idx)} className="text-gray-600 hover:text-red-500 transition-colors p-3 sm:p-2 flex-shrink-0"><X size={16}/></button>
                         </div>
                       ))}
                       {formData.tags.length === 0 && <div className="text-[10px] text-gray-600 font-mono italic">Sin etiquetas.</div>}
@@ -258,7 +263,7 @@ export default function AdminLabPage() {
                     value={formData.code} 
                     onChange={handleChange} 
                     spellCheck="false" 
-                    className="w-full flex-1 min-h-[400px] bg-[#0a0a0c] border border-white/5 rounded-xl p-6 text-[13px] font-mono text-gray-300 outline-none focus:border-emerald-500/50 resize-y custom-scrollbar leading-relaxed" 
+                    className="w-full flex-1 min-h-[400px] bg-[#0a0a0c] border border-white/5 rounded-xl p-4 md:p-6 text-[11px] md:text-[13px] font-mono text-gray-300 outline-none focus:border-emerald-500/50 resize-y custom-scrollbar leading-relaxed" 
                     placeholder="# Escribe tu código aquí..."
                   />
                 </div>
@@ -283,7 +288,7 @@ function InputGroup({ label, name, value, onChange, type = "text", placeholder="
 
 function SubTab({ active, onClick, icon, label }: any) {
   return (
-    <button type="button" onClick={onClick} className={`pb-4 px-2 flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest transition-all ${active ? 'text-white border-b-2 border-indigo-500' : 'text-gray-600 hover:text-gray-400'}`}>
+    <button type="button" onClick={onClick} className={`pb-4 px-2 flex items-center gap-2 text-[11px] font-mono uppercase tracking-widest transition-all flex-shrink-0 ${active ? 'text-white border-b-2 border-indigo-500' : 'text-gray-600 hover:text-gray-400'}`}>
       {icon} {label}
     </button>
   );
