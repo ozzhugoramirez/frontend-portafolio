@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Zap, User, Sparkles } from 'lucide-react';
+import { Send, Zap, User, Sparkles, Plus, SlidersHorizontal, Mic, ChevronDown } from 'lucide-react';
 import { getChatHistory, sendChatMessage } from '@/lib/api';
 
 const TypewriterText = ({ text, isTyping }: { text: string, isTyping?: boolean }) => {
@@ -85,25 +85,31 @@ export default function LiveChatPage() {
   };
 
   return (
-    <div className="h-[100dvh] w-full flex flex-col relative bg-[#f5f5f7] overflow-hidden">
+    // 1. ESTRUCTURA FLEX ESTRICTA: El fondo ahora es el gris claro exacto de Google (#f0f4f9)
+    <div className="h-[100dvh] w-full flex flex-col bg-[#f0f4f9] overflow-hidden font-sans">
       
-      {/* Header */}
-      <header className="absolute top-0 left-0 w-full pt-4 pb-2 px-4 flex justify-center z-20 bg-gradient-to-b from-[#f5f5f7] to-transparent pointer-events-none">
-        <div className="bg-white/80 backdrop-blur-md border border-gray-200/50 rounded-full px-5 py-2 flex items-center gap-2 shadow-sm pointer-events-auto">
-          <Zap size={16} className="text-blue-500" />
-          <span className="text-sm font-semibold text-gray-800 tracking-wide">Entity</span>
+      {/* HEADER: Flex-none para que no se encoja ni crezca */}
+      <header className="flex-none pt-4 pb-2 px-4 flex justify-between items-center z-10">
+        <div className="flex items-center gap-2">
+          <button className="p-2 text-gray-500 hover:bg-gray-200/50 rounded-full transition-colors">
+            {/* Ícono de menú hamburguesa simulado */}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <span className="text-[17px] font-medium text-gray-700 tracking-tight">Entity</span>
+        </div>
+        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-sm">
+          <User size={16} />
         </div>
       </header>
 
-      {/* Contenedor de scroll estricto */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden w-full px-4 md:px-8 pt-24 pb-32 custom-scrollbar">
-        
+      {/* CUERPO DEL CHAT: Flex-1 para que ocupe todo el espacio sobrante */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden w-full px-4 md:px-8 py-4 custom-scrollbar">
         <div className="max-w-3xl mx-auto space-y-6">
           
           {messages.length === 0 && !isLoading && (
-            <div className="h-[60vh] flex flex-col items-center justify-center text-center opacity-40">
-              <Sparkles size={32} className="text-gray-400 mb-3" />
-              <p className="text-sm font-medium text-gray-500">Los sistemas están listos.<br/>¿En qué te ayudo, Seba?</p>
+            <div className="mt-10 flex flex-col">
+              <h1 className="text-3xl md:text-4xl font-normal text-gray-800 mb-2">Hola, Seba</h1>
+              <h2 className="text-3xl md:text-4xl font-semibold text-gray-400 mb-8 tracking-tight">¿Por dónde empezamos?</h2>
             </div>
           )}
 
@@ -113,22 +119,20 @@ export default function LiveChatPage() {
             return (
               <div 
                 key={index} 
-                className={`flex items-end gap-2 md:gap-3 max-w-[95%] md:max-w-[85%] animate-in fade-in slide-in-from-bottom-2 ${
+                className={`flex items-start gap-2 max-w-[95%] md:max-w-[85%] animate-in fade-in slide-in-from-bottom-2 ${
                   isUser ? 'ml-auto flex-row-reverse' : 'mr-auto'
                 }`}
               >
-                {/* Avatar (flex-shrink-0 asegura que no se aplaste) */}
-                <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center mb-1 ${
-                  isUser ? 'bg-blue-600 shadow-md shadow-blue-500/20' : 'bg-white border border-gray-200 shadow-sm'
-                }`}>
-                  {isUser ? <User size={14} className="text-white" /> : <Zap size={14} className="text-blue-500" />}
-                </div>
+                {!isUser && (
+                  <div className="w-7 h-7 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center mt-1">
+                    <Sparkles size={14} className="text-blue-600" />
+                  </div>
+                )}
                 
-                {/* ⚠️ ACÁ ESTÁ LA SOLUCIÓN: min-w-0 y overflow-hidden para que el texto respete la burbuja */}
-                <div className={`px-4 md:px-5 py-3 shadow-sm text-[15px] leading-relaxed whitespace-pre-wrap break-words min-w-0 overflow-hidden ${
+                <div className={`px-4 py-3 text-[15px] leading-relaxed whitespace-pre-wrap break-words min-w-0 overflow-hidden ${
                   isUser
-                    ? 'bg-blue-600 text-white rounded-[24px] rounded-br-sm'
-                    : 'bg-white border border-gray-200/60 text-gray-800 rounded-[24px] rounded-bl-sm'
+                    ? 'bg-[#e3e3e3] dark:bg-[#303030] text-gray-900 rounded-[20px] rounded-tr-sm'
+                    : 'text-gray-800'
                 }`}>
                   <TypewriterText text={msg.content} isTyping={msg.role === 'model' && msg.isNew} />
                 </div>
@@ -137,48 +141,78 @@ export default function LiveChatPage() {
           })}
 
           {isLoading && (
-            <div className="flex items-end gap-2 md:gap-3 max-w-[85%] mr-auto animate-in fade-in">
-              <div className="w-8 h-8 rounded-full bg-white border border-gray-200 shadow-sm flex-shrink-0 flex items-center justify-center mb-1">
-                <Zap size={14} className="text-blue-500" />
+            <div className="flex items-center gap-3 max-w-[85%] mr-auto animate-in fade-in mt-2">
+              <div className="w-7 h-7 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center">
+                <Sparkles size={14} className="text-blue-600" />
               </div>
-              <div className="bg-white border border-gray-200/60 rounded-[24px] rounded-bl-sm px-5 py-4 shadow-sm flex items-center gap-1.5 min-w-0">
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
+              <div className="flex items-center gap-1.5 px-2">
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                <span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></span>
               </div>
             </div>
           )}
           
-          <div ref={messagesEndRef} className="h-4" />
+          <div ref={messagesEndRef} className="h-2" />
         </div>
       </div>
 
-      <footer className="absolute bottom-0 left-0 w-full p-4 md:p-8 bg-gradient-to-t from-[#f5f5f7] via-[#f5f5f7]/95 to-transparent pointer-events-none">
+      {/* FOOTER INPUT: Replicando el estilo exacto de la foto (Gemini App) */}
+      <footer className="flex-none w-full px-4 pb-6 md:pb-8 pt-2">
         <form 
           onSubmit={handleSendMessage}
-          className="max-w-3xl mx-auto bg-white/90 backdrop-blur-xl border border-gray-200/80 rounded-[28px] p-2 shadow-[0_8px_30px_rgb(0,0,0,0.08)] flex items-center gap-2 focus-within:ring-4 focus-within:ring-blue-500/10 focus-within:border-blue-400 transition-all pointer-events-auto"
+          className="max-w-3xl mx-auto bg-white rounded-[28px] md:rounded-[32px] p-3 shadow-[0_4px_20px_rgb(0,0,0,0.04)] border border-gray-100 flex flex-col gap-3 focus-within:shadow-[0_4px_25px_rgb(0,0,0,0.08)] transition-all"
         >
-          <div className="pl-4 hidden md:flex items-center justify-center">
-            <Sparkles size={20} className="text-blue-400" strokeWidth={1.5} />
+          {/* Fila superior: Input de texto */}
+          <div className="px-2 pt-1">
+            <input 
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              disabled={isLoading}
+              placeholder="Pregunta a Entity"
+              className="w-full min-w-0 bg-transparent border-none outline-none text-[16px] text-gray-900 placeholder:text-gray-500 disabled:opacity-50"
+            />
           </div>
-          <input 
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            disabled={isLoading}
-            placeholder="Escribí un comando para Entity..."
-            className="flex-1 min-w-0 bg-transparent border-none outline-none text-[15px] text-gray-900 placeholder:text-gray-400 px-3 py-2 disabled:opacity-50"
-          />
-          <button 
-            type="submit"
-            disabled={!message.trim() || isLoading}
-            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-white w-10 h-10 flex-shrink-0 rounded-full flex items-center justify-center transition-all active:scale-95 disabled:shadow-none shadow-md shadow-blue-500/20"
-          >
-            <Send size={18} className={`-ml-0.5 ${isLoading ? "opacity-0" : "opacity-100"}`} strokeWidth={2} />
-            {isLoading && <span className="absolute w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />}
-          </button>
+
+          {/* Fila inferior: Controles */}
+          <div className="flex items-center justify-between">
+            {/* Botones izquierdos */}
+            <div className="flex items-center gap-1">
+              <button type="button" className="p-2.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                <Plus size={20} strokeWidth={2} />
+              </button>
+              <button type="button" className="p-2.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors hidden sm:block">
+                <SlidersHorizontal size={18} strokeWidth={2} />
+              </button>
+              
+              {/* Selector de modelo (estético como en la foto) */}
+              <div className="hidden sm:flex items-center gap-1 ml-2 px-3 py-1.5 hover:bg-gray-100 rounded-full cursor-pointer transition-colors text-sm font-medium text-gray-600">
+                Core <ChevronDown size={16} className="text-gray-400" />
+              </div>
+            </div>
+
+            {/* Botones derechos (Micrófono o Enviar) */}
+            <div>
+              {message.trim().length === 0 && !isLoading ? (
+                <button type="button" className="p-3 bg-gray-100 text-gray-700 rounded-full transition-colors">
+                  <Mic size={20} />
+                </button>
+              ) : (
+                <button 
+                  type="submit"
+                  disabled={isLoading}
+                  className="p-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full transition-all active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 flex items-center justify-center relative"
+                >
+                  <Send size={18} className={isLoading ? "opacity-0" : "opacity-100"} strokeWidth={2} />
+                  {isLoading && <span className="absolute w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />}
+                </button>
+              )}
+            </div>
+          </div>
         </form>
       </footer>
+      
     </div>
   );
 }
