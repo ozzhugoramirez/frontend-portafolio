@@ -147,3 +147,17 @@ export const markMessageAsRead = async (id: number) => {
   const response = await api.patch(`/admin/messages/${id}/read/`);
   return response.data;
 };
+
+
+
+
+
+export const getChatHistory = async () => {
+  const response = await api.get('/chat/session/');
+  return response.data;
+};
+
+export const sendChatMessage = async (message: string) => {
+  const response = await api.post('/chat/session/', { message });
+  return response.data;
+};

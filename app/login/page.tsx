@@ -33,7 +33,7 @@ export default function LoginPage() {
 
     try {
       await loginUser({ username, password });
-      router.push('/panel');
+      router.push('/portal');
     } catch (err) {
       console.error("Login failed:", err);
       setError('Las credenciales ingresadas son incorrectas.');
