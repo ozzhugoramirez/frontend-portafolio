@@ -161,3 +161,44 @@ export const sendChatMessage = async (message: string) => {
   const response = await api.post('/chat/session/', { message });
   return response.data;
 };
+
+
+
+// ==========================================
+// --- STUDY / NOTEBOOKS & PAGES ---
+// ==========================================
+
+export const getNotebooks = async () => {
+  const response = await api.get('/study/notebooks/');
+  return response.data;
+};
+
+export const createNotebook = async (title: string) => {
+  const response = await api.post('/study/notebooks/', { title });
+  return response.data;
+};
+
+export const deleteNotebook = async (id: number) => {
+  const response = await api.delete(`/study/notebooks/${id}/`);
+  return response.data;
+};
+
+export const getPagesByNotebook = async (notebookId: number) => {
+  const response = await api.get(`/study/pages/?notebook=${notebookId}`);
+  return response.data;
+};
+
+export const createPage = async (notebookId: number, title: string) => {
+  const response = await api.post('/study/pages/', { notebook: notebookId, title, content: [] });
+  return response.data;
+};
+
+export const updatePage = async (pageId: number, data: { title?: string, content?: any }) => {
+  const response = await api.patch(`/study/pages/${pageId}/`, data);
+  return response.data;
+};
+
+export const deletePage = async (pageId: number) => {
+  const response = await api.delete(`/study/pages/${pageId}/`);
+  return response.data;
+};
