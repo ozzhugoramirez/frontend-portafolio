@@ -151,54 +151,22 @@ export const markMessageAsRead = async (id: number) => {
 
 
 
+export const getChatSessions = async () => {
+  const response = await api.get('/study/sessions/');
+  return response.data; // Retorna [{id, title}, ...]
+};
 
-export const getChatHistory = async () => {
-  const response = await api.get('/chat/session/');
+export const createChatSession = async () => {
+  const response = await api.post('/study/sessions/');
+  return response.data; // Retorna {id, title}
+};
+
+export const getSessionHistory = async (sessionId: string) => {
+  const response = await api.get(`/study/sessions/${sessionId}/`);
   return response.data;
 };
 
-export const sendChatMessage = async (message: string) => {
-  const response = await api.post('/chat/session/', { message });
-  return response.data;
-};
-
-
-
-// ==========================================
-// --- STUDY / NOTEBOOKS & PAGES ---
-// ==========================================
-
-export const getNotebooks = async () => {
-  const response = await api.get('/study/notebooks/');
-  return response.data;
-};
-
-export const createNotebook = async (title: string) => {
-  const response = await api.post('/study/notebooks/', { title });
-  return response.data;
-};
-
-export const deleteNotebook = async (id: number) => {
-  const response = await api.delete(`/study/notebooks/${id}/`);
-  return response.data;
-};
-
-export const getPagesByNotebook = async (notebookId: number) => {
-  const response = await api.get(`/study/pages/?notebook=${notebookId}`);
-  return response.data;
-};
-
-export const createPage = async (notebookId: number, title: string) => {
-  const response = await api.post('/study/pages/', { notebook: notebookId, title, content: [] });
-  return response.data;
-};
-
-export const updatePage = async (pageId: number, data: { title?: string, content?: any }) => {
-  const response = await api.patch(`/study/pages/${pageId}/`, data);
-  return response.data;
-};
-
-export const deletePage = async (pageId: number) => {
-  const response = await api.delete(`/study/pages/${pageId}/`);
+export const sendSessionMessage = async (sessionId: string, message: string, model: string) => {
+  const response = await api.post(`/study/sessions/${sessionId}/`, { message, model });
   return response.data;
 };

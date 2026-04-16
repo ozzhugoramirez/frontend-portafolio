@@ -62,20 +62,6 @@ export default function PortalPage() {
             </div>
           </Link>
 
-          {/* Tarjeta: Live */}
-          <Link href="/live" className="group relative bg-white/70 backdrop-blur-xl border border-gray-200/50 hover:border-purple-200 rounded-[24px] p-8 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl -mr-10 -mt-10 transition-opacity opacity-0 group-hover:opacity-100"></div>
-            <div className="w-12 h-12 bg-purple-50 border border-purple-100 rounded-[16px] flex items-center justify-center text-purple-600 mb-6 group-hover:scale-110 transition-transform duration-300">
-              <Radio size={24} strokeWidth={1.5} />
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2 tracking-tight">Live Hub</h2>
-            <p className="text-sm text-gray-500 leading-relaxed mb-8">
-              Entorno en tiempo real, streaming, monitoreo activo y eventos en directo.
-            </p>
-            <div className="flex items-center text-purple-600 text-sm font-medium">
-              Ingresar <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-            </div>
-          </Link>
 
         </div>
       </div>
