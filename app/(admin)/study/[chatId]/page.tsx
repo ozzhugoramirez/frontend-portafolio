@@ -68,23 +68,31 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
   );
 };
 
-// --- COMPONENTE TYPEWRITER (CORREGIDO CON ONUPDATE) ---
+// --- COMPONENTE TYPEWRITER ARREGLADO ---
 const TypewriterText = ({ text, isTyping, onUpdate }: { text: string, isTyping?: boolean, onUpdate?: () => void }) => {
   const [displayedText, setDisplayedText] = useState(isTyping ? '' : text);
+  const onUpdateRef = useRef(onUpdate);
+  useEffect(() => { onUpdateRef.current = onUpdate; }, [onUpdate]);
 
   useEffect(() => {
-    if (!isTyping) { setDisplayedText(text); return; }
+    if (!isTyping) { 
+      setDisplayedText(text); 
+      return; 
+    }
+    
+    setDisplayedText('');
     let i = 0;
     const interval = setInterval(() => {
       setDisplayedText(text.slice(0, i + 1));
       i++;
-      // Cada vez que escribimos una letra, avisamos al padre para que scrollee
-      if (onUpdate) onUpdate();
+      
+      if (onUpdateRef.current) onUpdateRef.current();
       
       if (i >= text.length) clearInterval(interval);
     }, 12); 
+    
     return () => clearInterval(interval);
-  }, [text, isTyping, onUpdate]);
+  }, [text, isTyping]);
 
   return <MarkdownRenderer content={displayedText} />;
 };
@@ -101,12 +109,14 @@ export default function ChatSessionPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [sessionModel, setSessionModel] = useState('gemini-2.5-flash'); 
   
-  const messagesEndRef = useRef<HTMLDivElement>(null); // Ref para el fondo del chat
-  const scrollContainerRef = useRef<HTMLDivElement>(null); // Ref para el contenedor que scrollea
+  // ESTADOS PARA LA MEMORIA/LÍMITES
+  const [messageCount, setMessageCount] = useState(0);
+  const [messageLimit, setMessageLimit] = useState(40);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null); 
   const lastScrollY = useRef(0);
   const [isInputVisible, setIsInputVisible] = useState(true);
 
-  // Función para scrollear al fondo
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -115,16 +125,24 @@ export default function ChatSessionPage() {
     if (chatId) loadHistory();
   }, [chatId]);
 
-  // Scrollear cuando cambia la lista de mensajes (mensaje nuevo)
   useEffect(() => {
     scrollToBottom();
   }, [messages, isLoading]);
 
   const loadHistory = async () => {
     try {
-      const history = await getSessionHistory(chatId as string);
-      const formattedHistory = history.map((msg: any) => ({ ...msg, isNew: false }));
+      // 1. Ahora traemos data (que incluye messages y meta)
+      const data = await getSessionHistory(chatId as string);
+      
+      // 2. Leemos la lista de mensajes correctamente
+      const formattedHistory = data.messages.map((msg: any) => ({ ...msg, isNew: false }));
       setMessages(formattedHistory);
+
+      // 3. Guardamos los valores de memoria
+      if (data.meta) {
+        setMessageCount(data.meta.message_count);
+        setMessageLimit(data.meta.limit);
+      }
     } catch (error) {
       console.error("Error cargando el historial:", error);
     }
@@ -132,14 +150,32 @@ export default function ChatSessionPage() {
 
   const handleSend = async (message: string) => {
     if (!message.trim() || isLoading) return;
-    setMessages(prev => [...prev, { role: 'user', content: message, isNew: false }]);
+    
+    setMessages(prev => {
+      const resetPrev = prev.map(m => ({ ...m, isNew: false }));
+      return [...resetPrev, { role: 'user', content: message, isNew: false }];
+    });
+    
     setIsLoading(true);
     setIsInputVisible(true); 
+
     try {
       const res = await sendSessionMessage(chatId as string, message, sessionModel);
-      setMessages(prev => [...prev, { role: 'model', content: res.content, isNew: true }]);
+      setMessages(prev => {
+        const resetPrev = prev.map(m => ({ ...m, isNew: false }));
+        return [...resetPrev, { role: 'model', content: res.content, isNew: true }];
+      });
+
+      // ACTUALIZAMOS MEMORIA DESPUÉS DEL MENSAJE NUEVO
+      if (res.meta) {
+        setMessageCount(res.meta.message_count);
+        setMessageLimit(res.meta.limit);
+      }
     } catch (e) {
-      setMessages(prev => [...prev, { role: 'model', content: '⚠️ Error de conexión.', isNew: true }]);
+      setMessages(prev => {
+        const resetPrev = prev.map(m => ({ ...m, isNew: false }));
+        return [...resetPrev, { role: 'model', content: '⚠️ Error de conexión.', isNew: true }];
+      });
     } finally {
       setIsLoading(false);
     }
@@ -163,7 +199,6 @@ export default function ChatSessionPage() {
   return (
     <div className="h-full flex flex-col relative bg-white">
       <div 
-        ref={scrollContainerRef}
         className="flex-1 overflow-y-auto w-full custom-scrollbar pt-20 md:pt-24 scroll-smooth"
         onScroll={handleScroll}
       >
@@ -180,7 +215,6 @@ export default function ChatSessionPage() {
                 ) : (
                   <div className="flex flex-col gap-4 w-full">
                     <div className="w-full">
-                      {/* PASAMOS LA FUNCIÓN SCROLLTOBOTTOM AL COMPONENTE HIJO */}
                       <TypewriterText 
                         text={m.content} 
                         isTyping={m.isNew} 
@@ -211,7 +245,6 @@ export default function ChatSessionPage() {
               </div>
             </div>
           )}
-          {/* Este div es nuestro ancla para el scroll */}
           <div ref={messagesEndRef} className="h-4" />
         </div>
       </div>
@@ -226,8 +259,24 @@ export default function ChatSessionPage() {
       </button>
 
       <footer className={`absolute left-0 w-full px-2 md:px-0 pointer-events-none z-20 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${isInputVisible ? 'bottom-2 opacity-100' : '-bottom-48 opacity-0'}`}>
-        <div className="max-w-2xl mx-auto pointer-events-auto">
-            <ChatInput onSendMessage={handleSend} isLoading={isLoading} model={sessionModel} onModelChange={setSessionModel} />
+        <div className="max-w-2xl mx-auto pointer-events-auto flex flex-col items-end">
+            
+            {/* INDICADOR DE MEMORIA (Se pone naranja al 80%, rojo al 100%) */}
+            {messageCount > 0 && (
+              <div className="mb-2 mr-4 pointer-events-none">
+                <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full transition-colors shadow-sm ${
+                  messageCount >= messageLimit ? 'bg-red-100 text-red-600 border border-red-200' : 
+                  messageCount >= messageLimit * 0.8 ? 'bg-orange-100 text-orange-600 border border-orange-200' : 
+                  'bg-white/90 text-gray-400 border border-gray-100 backdrop-blur-sm'
+                }`}>
+                  Memoria: {messageCount}/{messageLimit}
+                </span>
+              </div>
+            )}
+
+            <div className="w-full">
+              <ChatInput onSendMessage={handleSend} isLoading={isLoading} model={sessionModel} onModelChange={setSessionModel} />
+            </div>
         </div>
       </footer>
     </div>

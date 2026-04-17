@@ -21,19 +21,40 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
     { id: 'translate', icon: '🌍', title: 'Traducir', prompt: 'Traduce al inglés: ' },
   ];
 
-  // Auto-expandir el textarea con animación
+  // 1. Auto-expandir el textarea con animación
   useEffect(() => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'; // Reset para calcular nuevo tamaño
-      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 150)}px`; // Máximo 150px
+      textareaRef.current.style.height = 'auto'; 
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 150)}px`;
     }
   }, [message]);
+
+  // 2. MAGIA: Detectar tipeo global para hacer auto-focus
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ignorar si el usuario está usando atajos de teclado (Ctrl, Alt, CMD)
+      if (e.ctrlKey || e.altKey || e.metaKey) return;
+
+      // Ignorar si el foco ya está en algún input o textarea
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || (activeEl as HTMLElement).isContentEditable)) {
+        return;
+      }
+
+      // Si presionó una tecla normal (letras, números, símbolos - su length es 1)
+      if (e.key.length === 1) {
+        textareaRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
 
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setMessage(val);
 
-    // Detectar si el usuario escribió "/" al final o después de un espacio
     if (val.endsWith('/') || val.endsWith(' /')) {
       setShowSlashMenu(true);
     } else {
@@ -42,7 +63,6 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
   };
 
   const handleCommandSelect = (prompt: string) => {
-    // Reemplaza la última "/" con el prompt seleccionado
     const newMessage = message.replace(/\/$/, '') + prompt;
     setMessage(newMessage);
     setShowSlashMenu(false);
@@ -54,7 +74,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
     onSendMessage(message);
     setMessage('');
     setShowSlashMenu(false);
-    if (textareaRef.current) textareaRef.current.style.height = 'auto'; // Reseteamos el alto
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
   };
 
   return (
@@ -84,7 +104,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, isLoading, 
       {/* INPUT PRINCIPAL */}
       <div className="bg-white rounded-[28px] p-2 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-200 flex flex-col gap-1 transition-all">
         
-        {/* CABECERA: HERRAMIENTAS (Solo íconos, sin scroll) */}
+        {/* CABECERA: HERRAMIENTAS */}
         <div className="flex items-center gap-3 px-4 py-2 border-b border-gray-50">
           <Zap size={15} className="text-blue-500 fill-blue-500" />
           <div className="h-4 w-px bg-gray-200" />

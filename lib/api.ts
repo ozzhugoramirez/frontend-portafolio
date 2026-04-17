@@ -151,22 +151,52 @@ export const markMessageAsRead = async (id: number) => {
 
 
 
-export const getChatSessions = async () => {
-  const response = await api.get('/study/sessions/');
-  return response.data; // Retorna [{id, title}, ...]
+/// --- RUTAS DEL WORKSPACE ---
+
+export const getWorkspaceData = async () => {
+  const response = await api.get('/study/workspace/');
+  return response.data;
 };
 
-export const createChatSession = async () => {
-  const response = await api.post('/study/sessions/');
-  return response.data; // Retorna {id, title}
+export const createNotebook = async (title: string, color: string) => {
+  const response = await api.post('/study/notebooks/', { title, color });
+  return response.data;
+};
+
+// ACÁ EL CAMBIO DE NOMBRE
+export const createStudyProject = async (title: string) => {
+  const response = await api.post('/study/projects/', { title });
+  return response.data;
+};
+
+// --- RUTAS DEL CHAT (Actualizadas) ---
+
+export const getChatSessions = async (notebookId?: string, projectId?: string) => {
+  // Pasamos parámetros opcionales por si queremos filtrar
+  const params = new URLSearchParams();
+  if (notebookId) params.append('notebook_id', notebookId);
+  if (projectId) params.append('project_id', projectId);
+  
+  const response = await api.get(`/study/sessions/?${params.toString()}`);
+  return response.data; // [{id, title}, ...]
+};
+
+export const createChatSession = async (notebookId?: string, projectId?: string) => {
+  const response = await api.post('/study/sessions/', {
+    notebook_id: notebookId,
+    project_id: projectId
+  });
+  return response.data; // {id, title}
 };
 
 export const getSessionHistory = async (sessionId: string) => {
   const response = await api.get(`/study/sessions/${sessionId}/`);
-  return response.data;
+  // Ahora retorna: { messages: [...], meta: { message_count, limit } }
+  return response.data; 
 };
 
 export const sendSessionMessage = async (sessionId: string, message: string, model: string) => {
   const response = await api.post(`/study/sessions/${sessionId}/`, { message, model });
-  return response.data;
+  // Ahora retorna: { role, content, meta: { message_count, limit } }
+  return response.data; 
 };

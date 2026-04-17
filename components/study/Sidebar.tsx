@@ -35,7 +35,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ sessions, onNewChat, onClose, 
       <div className="flex-none flex items-center justify-between mb-8 mt-2">
         <div className="flex items-center gap-2.5">
           <BotMessageSquare size={22} className="text-blue-600" />
-          <span className="text-[18px] font-bold text-gray-900 tracking-tight">olo workspace</span>
+          <Link href="/study"> <span className="text-[18px] font-bold text-gray-900 tracking-tight">olo workspace</span></Link>
+         
         </div>
         <button 
           onClick={handleNewChatClick}
