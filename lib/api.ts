@@ -151,23 +151,43 @@ export const markMessageAsRead = async (id: number) => {
 
 
 
-/// --- RUTAS DEL WORKSPACE ---
+
+// --- RUTAS DEL WORKSPACE ---
 
 export const getWorkspaceData = async () => {
   const response = await api.get('/study/workspace/');
   return response.data;
 };
 
-export const createNotebook = async (title: string, color: string) => {
-  const response = await api.post('/study/notebooks/', { title, color });
+// NUEVA: Para traer los prompts al Modal
+export const getStudyPrompts = async () => {
+  const response = await api.get('/study/prompts/');
   return response.data;
 };
 
-// ACÁ EL CAMBIO DE NOMBRE
-export const createStudyProject = async (title: string) => {
-  const response = await api.post('/study/projects/', { title });
+// ACTUALIZADA: Ahora recibe el promptId opcional
+export const createNotebook = async (title: string, color: string, promptId?: string) => {
+  const response = await api.post('/study/notebooks/', { 
+    title, 
+    color,
+    prompt_id: promptId // Se lo mandamos al backend
+  });
   return response.data;
 };
+
+// ACTUALIZADA: Ahora recibe el promptId opcional
+export const createStudyProject = async (title: string, promptId?: string) => {
+  const response = await api.post('/study/projects/', { 
+    title,
+    prompt_id: promptId // Se lo mandamos al backend
+  });
+  return response.data;
+};
+
+
+
+
+
 
 // --- RUTAS DEL CHAT (Actualizadas) ---
 

@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link'; 
 import { usePathname } from 'next/navigation';
-import { Plus, HelpCircle, Settings2, BotMessageSquare, Terminal, ShoppingCart, Shield, GraduationCap, ChevronRight } from 'lucide-react';
+import { Plus, HelpCircle, Settings2, BotMessageSquare, Home, BrainCircuit, Sparkles } from 'lucide-react';
 
 interface SidebarProps {
   sessions: {id: string, title: string}[];
@@ -16,14 +16,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ sessions, onNewChat, onClose, 
   const pathname = usePathname();
   const currentChatId = pathname.split('/study/')[1];
 
-  // Carpetas de proyectos específicos
-  const projectFolders = [
-    { name: "Vexa OS", icon: Terminal, color: "text-green-600" },
-    { name: "Silo E-commerce", icon: ShoppingCart, color: "text-orange-500" },
-    { name: "Halo Security", icon: Shield, color: "text-blue-500" },
-    { name: "CBC Informática UBA", icon: GraduationCap, color: "text-purple-600" },
-  ];
-
   const handleNewChatClick = () => {
     onNewChat();
     onClose(); 
@@ -32,11 +24,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ sessions, onNewChat, onClose, 
   return (
     <aside className="w-[280px] h-full bg-[#f8fafd] border-r border-gray-200 p-4 flex flex-col custom-scrollbar overflow-y-auto">
       {/* HEADER SIDEBAR */}
-      <div className="flex-none flex items-center justify-between mb-8 mt-2">
+      <div className="flex-none flex items-center justify-between mb-6 mt-2">
         <div className="flex items-center gap-2.5">
           <BotMessageSquare size={22} className="text-blue-600" />
-          <Link href="/study"> <span className="text-[18px] font-bold text-gray-900 tracking-tight">olo workspace</span></Link>
-         
+          <Link href="/study" onClick={onClose}> 
+            <span className="text-[18px] font-bold text-gray-900 tracking-tight">olo workspace</span>
+          </Link>
         </div>
         <button 
           onClick={handleNewChatClick}
@@ -47,12 +40,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ sessions, onNewChat, onClose, 
       </div>
 
       {/* AI MODULE (Móvil) */}
-      <div className="mb-8 md:hidden">
+      <div className="mb-6 md:hidden">
           <div className="relative group p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
               <select 
                   value={model} 
                   onChange={(e) => onModelChange(e.target.value)}
-                  className="w-full text-xs border-none bg-transparent font-medium text-gray-700 focus:ring-0 outline-none pr-8"
+                  className="w-full text-xs border-none bg-transparent font-medium text-gray-700 focus:ring-0 outline-none pr-8 cursor-pointer"
               >
                   <option value="gemini-2.5-flash">✨ Gemini 2.5 Flash</option>
                   <option value="gemini-1.5-flash">✨ Gemini 1.5 Flash</option>
@@ -62,29 +55,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ sessions, onNewChat, onClose, 
       </div>
 
       <div className="flex-1 space-y-8">
-        {/* SECCIÓN: CARPETAS / PROYECTOS */}
+        
+        {/* SECCIÓN: MENÚ PRINCIPAL */}
         <div>
-          <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-1">Proyectos</h3>
+          <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Menú</h3>
           <div className="space-y-1">
-            {projectFolders.map((folder, idx) => {
-              const Icon = folder.icon;
-              return (
-                <button 
-                  key={idx}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-sm transition-all group"
-                >
-                  <Icon size={16} className={`${folder.color} opacity-80 group-hover:opacity-100`} />
-                  <span className="truncate flex-1 text-left font-medium text-gray-700 group-hover:text-gray-900">{folder.name}</span>
-                  <ChevronRight size={14} className="text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </button>
-              )
-            })}
+            <Link 
+              href="/study"
+              onClick={onClose}
+              className={`flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-colors ${pathname === '/study' ? 'bg-blue-50 text-blue-700 font-medium' : 'text-gray-600 hover:bg-gray-100'}`}
+            >
+              <Home size={16} className={pathname === '/study' ? 'text-blue-600' : 'text-gray-400'} />
+              <span>Inicio (Workspace)</span>
+            </Link>
+            
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+              <Sparkles size={16} className="text-gray-400" />
+              <span className="text-left flex-1">Mis Contextos IA</span>
+            </button>
+            
+            <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+              <BrainCircuit size={16} className="text-gray-400" />
+              <span className="text-left flex-1">Memoria Global</span>
+            </button>
           </div>
         </div>
 
         {/* SECCIÓN: HISTORIAL DE CHATS */}
         <div>
-          <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-1">Recientes</h3>
+          <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">Recientes</h3>
           <div className="space-y-1">
             {sessions.map(s => {
               const isActive = currentChatId === s.id;
@@ -111,7 +110,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ sessions, onNewChat, onClose, 
 
       {/* FOOTER SIDEBAR */}
       <div className="flex-none mt-auto pt-6 border-t border-gray-100 space-y-2">
-          <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+          <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
             <Settings2 size={16} className="text-gray-400" />
             <span>Configuración</span>
           </button>
