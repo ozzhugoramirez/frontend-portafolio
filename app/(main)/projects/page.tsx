@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import Navbar from '@/components/Navbar';
 import Link from 'next/link';
-import { getProjects, trackEvent } from '@/lib/api'; 
-import { 
-  Github, ExternalLink, Server, LayoutTemplate, 
+import { getProjects, trackEvent } from '@/lib/api';
+import {
+  Github, ExternalLink, Server, LayoutTemplate,
   ShieldCheck, ArrowRight, ChevronLeft, ChevronRight,
   Code2, Terminal, Smartphone, Database, Globe
 } from 'lucide-react';
@@ -29,7 +28,7 @@ function FadeInSection({ children }: { children: React.ReactNode }) {
   const domRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const currentRef = domRef.current; 
+    const currentRef = domRef.current;
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -58,7 +57,7 @@ const getDynamicCategories = (projects: any[]) => {
 export default function ProjectsPage() {
   const [projectsData, setProjectsData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [activeFilter, setActiveFilter] = useState("Todos");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -69,7 +68,7 @@ export default function ProjectsPage() {
         const results = data.results ? data.results : data;
         setProjectsData(results);
         setLoading(false);
-        
+
         trackEvent('view', 'projects_page');
       })
       .catch(error => {
@@ -80,8 +79,8 @@ export default function ProjectsPage() {
 
   const CATEGORIES = getDynamicCategories(projectsData);
 
-  const filteredProjects = activeFilter === "Todos" 
-    ? projectsData 
+  const filteredProjects = activeFilter === "Todos"
+    ? projectsData
     : projectsData.filter(p => p.category === activeFilter);
 
   useEffect(() => {
@@ -90,7 +89,7 @@ export default function ProjectsPage() {
 
   const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
   const paginatedProjects = filteredProjects.slice(
-    (currentPage - 1) * itemsPerPage, 
+    (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
@@ -109,7 +108,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-gray-400 font-sans selection:bg-gray-700 selection:text-white pb-32 overflow-x-hidden">
-      <Navbar />
+
 
       <header className="pt-32 pb-12 px-4 md:px-8 lg:px-12 max-w-[1400px] mx-auto">
         <FadeInSection>
@@ -134,11 +133,10 @@ export default function ProjectsPage() {
               <button
                 key={cat}
                 onClick={() => setActiveFilter(cat)}
-                className={`px-5 py-2.5 rounded-full text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all duration-300 border ${
-                  activeFilter === cat 
-                    ? 'bg-white text-black border-white' 
+                className={`px-5 py-2.5 rounded-full text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all duration-300 border ${activeFilter === cat
+                    ? 'bg-white text-black border-white'
                     : 'bg-transparent text-gray-500 border-gray-800 hover:border-gray-500 hover:text-white'
-                }`}
+                  }`}
               >
                 {cat}
               </button>
@@ -160,21 +158,21 @@ export default function ProjectsPage() {
             return (
               <FadeInSection key={project.slug}>
                 <article className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-12 lg:gap-20 items-center`}>
-                  
+
                   {/* IMAGEN DEL PROYECTO (Con rastreo) */}
-                  <Link 
-                    href={`/projects/${project.slug}`} 
-                    onClick={() => handleProjectClick(project.slug)} 
+                  <Link
+                    href={`/projects/${project.slug}`}
+                    onClick={() => handleProjectClick(project.slug)}
                     className="w-full lg:w-1/2 relative group block"
                   >
                     <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl rounded-full"></div>
                     <div className={`w-full aspect-video md:aspect-[4/3] rounded-[2rem] border border-gray-800 bg-gradient-to-br ${project.gradient_class || 'from-zinc-800 to-black'} shadow-2xl relative overflow-hidden transition-transform duration-700 group-hover:scale-[1.02]`}>
                       {project.image_main ? (
-                         <img 
-                           src={project.image_main.startsWith('http') ? project.image_main : `${BACKEND_URL}${project.image_main}`} 
-                           alt={project.title} 
-                           className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                         />
+                        <img
+                          src={project.image_main.startsWith('http') ? project.image_main : `${BACKEND_URL}${project.image_main}`}
+                          alt={project.title}
+                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center text-gray-600 font-mono text-sm opacity-50">
                           [ Imagen de {project.title} ]
@@ -194,7 +192,7 @@ export default function ProjectsPage() {
                     </div>
 
                     {/* TÍTULO DEL PROYECTO (Con rastreo) */}
-                    <Link 
+                    <Link
                       href={`/projects/${project.slug}`}
                       onClick={() => handleProjectClick(project.slug)}
                     >
@@ -202,7 +200,7 @@ export default function ProjectsPage() {
                         {project.title}
                       </h2>
                     </Link>
-                    
+
                     <p className="text-sm md:text-base text-gray-400 leading-relaxed mb-8">
                       {project.short_description}
                     </p>
@@ -232,20 +230,20 @@ export default function ProjectsPage() {
 
                     <div className="flex items-center gap-4">
                       {/* BOTÓN VER DETALLES (Con rastreo) */}
-                      <Link 
-                        href={`/projects/${project.slug}`} 
+                      <Link
+                        href={`/projects/${project.slug}`}
                         onClick={() => handleProjectClick(project.slug)}
                         className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors"
                       >
                         Ver Detalles <ArrowRight size={14} />
                       </Link>
-                      
+
                       {/* ENLACES EXTERNOS (Con rastreo individual) */}
                       {project.links?.github && project.links.github !== "#" && (
-                        <a 
-                          href={project.links.github} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          href={project.links.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           onClick={() => trackEvent('click', `github-${project.slug}`)}
                           className="flex items-center gap-2 bg-[#121214] border border-gray-800 text-white px-6 py-3 rounded-full text-xs font-medium hover:border-gray-500 transition-colors"
                         >
@@ -253,10 +251,10 @@ export default function ProjectsPage() {
                         </a>
                       )}
                       {project.links?.live && project.links.live !== "#" && (
-                        <a 
-                          href={project.links.live} 
-                          target="_blank" 
-                          rel="noopener noreferrer" 
+                        <a
+                          href={project.links.live}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           onClick={() => trackEvent('click', `live-${project.slug}`)}
                           className="flex items-center gap-2 bg-[#121214] border border-gray-800 text-gray-400 px-4 py-3 rounded-full hover:text-white transition-colors"
                         >
@@ -276,19 +274,19 @@ export default function ProjectsPage() {
         {totalPages > 1 && (
           <FadeInSection>
             <div className="mt-20 pt-8 border-t border-gray-800 flex items-center justify-between">
-              <button 
+              <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
                 className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-white transition-colors disabled:opacity-30 disabled:hover:text-gray-500"
               >
                 <ChevronLeft size={16} /> Anterior
               </button>
-              
+
               <span className="text-[10px] font-mono text-gray-600 uppercase tracking-widest">
                 Página {currentPage} de {totalPages}
               </span>
 
-              <button 
+              <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-white transition-colors disabled:opacity-30 disabled:hover:text-gray-500"

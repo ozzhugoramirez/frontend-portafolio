@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from 'react';
-import Navbar from '@/components/Navbar';
-import { getProfile } from '@/lib/api'; 
-import { 
-  User, Code2, ShieldCheck, Zap, HeartPulse, 
-  MapPin, GraduationCap, Terminal, Languages, ArrowRight 
+import { getProfile } from '@/lib/api';
+import {
+  User, Code2, ShieldCheck, Zap, HeartPulse,
+  MapPin, GraduationCap, Terminal, Languages, ArrowRight
 } from 'lucide-react';
 
 
@@ -81,10 +80,10 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-gray-400 font-sans selection:bg-indigo-900 selection:text-white pb-32">
-      <Navbar />
+
 
       <main className="pt-32 px-4 md:px-8 lg:px-12 max-w-[1200px] mx-auto">
-        
+
         {/* --- HERO / INTRO --- */}
         <section className="mb-24">
           <FadeInSection>
@@ -92,7 +91,7 @@ export default function AboutPage() {
               <User size={20} />
               <span className="text-xs font-mono uppercase tracking-widest">/ About me</span>
             </div>
-            
+
             <h1 className="text-5xl md:text-8xl font-mono text-white tracking-tighter mb-8 leading-[0.85]">
               {profile.hero_title || "Ingeniería con propósito."}
             </h1>
@@ -107,12 +106,12 @@ export default function AboutPage() {
                 <p className="text-base text-gray-400 leading-relaxed mb-8">
                   {profile.bio_p2 || ""}
                 </p>
-                
+
                 {/* Datos rápidos dinámicos */}
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6 border-t border-gray-800 pt-8">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono uppercase text-gray-600">Ubicación</span>
-                    <p className="text-sm text-white flex items-center gap-1.5"><MapPin size={14} className="text-indigo-400"/> {profile.location}</p>
+                    <p className="text-sm text-white flex items-center gap-1.5"><MapPin size={14} className="text-indigo-400" /> {profile.location}</p>
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono uppercase text-gray-600">Origen</span>
@@ -120,7 +119,7 @@ export default function AboutPage() {
                   </div>
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono uppercase text-gray-600">Idiomas</span>
-                    <p className="text-sm text-white flex items-center gap-1.5"><Languages size={14} className="text-indigo-400"/> {profile.languages}</p>
+                    <p className="text-sm text-white flex items-center gap-1.5"><Languages size={14} className="text-indigo-400" /> {profile.languages}</p>
                   </div>
                 </div>
               </FadeInSection>
@@ -133,9 +132,9 @@ export default function AboutPage() {
                   <div className="absolute -inset-4 bg-gradient-to-tr from-indigo-500/20 to-transparent blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
                   <div className="aspect-[4/5] bg-gray-800 rounded-[2.5rem] overflow-hidden border border-gray-700 grayscale hover:grayscale-0 transition-all duration-700 relative">
                     {profile.profile_photo ? (
-                      <img 
-                        src={profile.profile_photo.startsWith('http') ? profile.profile_photo : `${BACKEND_URL}${profile.profile_photo}`} 
-                        alt={profile.name} 
+                      <img
+                        src={profile.profile_photo.startsWith('http') ? profile.profile_photo : `${BACKEND_URL}${profile.profile_photo}`}
+                        alt={profile.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -156,7 +155,7 @@ export default function AboutPage() {
             <h2 className="text-xs font-mono uppercase tracking-widest text-gray-500 mb-12 border-b border-gray-800 pb-4">Filosofía de Trabajo</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {profile.work_philosophy && profile.work_philosophy.map((item: any, index: number) => (
-                <PrincipleCard 
+                <PrincipleCard
                   key={index}
                   icon={ICON_MAP[item.icon] || ICON_MAP['default']}
                   title={item.title}
@@ -175,7 +174,7 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-8">
               {profile.education && profile.education.map((edu: any, index: number) => (
-                <EduItem 
+                <EduItem
                   key={index}
                   title={edu.title}
                   institution={edu.institution}
@@ -193,10 +192,10 @@ export default function AboutPage() {
             <div className="bg-[#121214] border border-gray-800 rounded-3xl p-8">
               <div className="space-y-6">
                 {profile.arsenal && profile.arsenal.map((group: any, index: number) => (
-                  <SkillGroup 
-                    key={index} 
-                    title={group.category} 
-                    skills={group.skills} 
+                  <SkillGroup
+                    key={index}
+                    title={group.category}
+                    skills={group.skills}
                   />
                 ))}
               </div>
@@ -204,7 +203,7 @@ export default function AboutPage() {
           </FadeInSection>
         </section>
 
-        
+
 
       </main>
     </div>

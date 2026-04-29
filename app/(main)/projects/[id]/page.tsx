@@ -3,11 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-// OJO: Revisá la ruta de tu Navbar según la estructura de tus carpetas
-import Navbar from '@/components/Navbar'; 
+
 import { getProjectBySlug } from '@/lib/api';
-import { 
-  ArrowLeft, Github, TerminalSquare, Cpu, ShieldAlert, Folder, 
+import {
+  ArrowLeft, Github, TerminalSquare, Cpu, ShieldAlert, Folder,
   FileCode2, Activity, Database, CheckCircle2, Download, Image as ImageIcon,
   Clock, GitBranch, Copy, Check, ExternalLink, Youtube, Code2, Zap
 } from 'lucide-react';
@@ -27,13 +26,13 @@ const getYoutubeEmbedUrl = (url: string) => {
 export default function ProjectDetailTechnical() {
   const params = useParams();
   const projectSlug = params.id as string;
-  
+
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [copiedClone, setCopiedClone] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
- 
+
   useEffect(() => {
     if (!projectSlug) return;
     setLoading(true);
@@ -48,7 +47,7 @@ export default function ProjectDetailTechnical() {
         setLoading(false);
       });
   }, [projectSlug]);
-  
+
   const handleCopy = (text: string, type: 'clone' | 'code') => {
     navigator.clipboard.writeText(text);
     if (type === 'clone') {
@@ -67,7 +66,7 @@ export default function ProjectDetailTechnical() {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-gray-400 font-sans selection:bg-indigo-900 selection:text-white pb-32">
-      <Navbar />
+
 
       <main className="pt-32 px-4 md:px-8 lg:px-12 max-w-[1200px] mx-auto">
         <Link href="/projects" className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-gray-500 hover:text-white transition-colors mb-12 group">
@@ -90,7 +89,7 @@ export default function ProjectDetailTechnical() {
               </span>
             </div>
           </div>
-          
+
           <p className="text-base md:text-lg text-gray-300 leading-relaxed max-w-4xl mb-6">
             {project.short_description}
           </p>
@@ -105,7 +104,7 @@ export default function ProjectDetailTechnical() {
               ))}
             </div>
           )}
-          
+
           <div className="flex flex-wrap items-center gap-4">
             {project.links?.github && project.links.github !== "#" && (
               <a href={project.links.github} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-white text-black px-6 py-2.5 rounded-xl text-xs font-mono font-medium hover:bg-gray-200 transition-colors">
@@ -176,15 +175,15 @@ export default function ProjectDetailTechnical() {
             <div className={`grid gap-6 ${project.gallery.length === 1 ? 'grid-cols-1 max-w-4xl mx-auto' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'}`}>
               {project.gallery.map((img: any) => (
                 <div key={img.id} className="group cursor-pointer">
-                   <div className="w-full aspect-video rounded-xl border border-white/5 bg-[#0c0c0d] mb-4 overflow-hidden relative shadow-lg">
-                     <img 
-                        src={img.image.startsWith('http') ? img.image : `${BACKEND_URL}${img.image}`} 
-                        alt={img.caption || `Captura de ${project.title}`}
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" 
-                      />
-                   </div>
-                   {img.caption && <h4 className="text-sm font-medium text-gray-300">{img.caption}</h4>}
-                   {img.description && <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">{img.description}</p>}
+                  <div className="w-full aspect-video rounded-xl border border-white/5 bg-[#0c0c0d] mb-4 overflow-hidden relative shadow-lg">
+                    <img
+                      src={img.image.startsWith('http') ? img.image : `${BACKEND_URL}${img.image}`}
+                      alt={img.caption || `Captura de ${project.title}`}
+                      className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                    />
+                  </div>
+                  {img.caption && <h4 className="text-sm font-medium text-gray-300">{img.caption}</h4>}
+                  {img.description && <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">{img.description}</p>}
                 </div>
               ))}
             </div>
@@ -193,10 +192,10 @@ export default function ProjectDetailTechnical() {
 
         {/* --- 5. GRILLA TÉCNICA (IZQUIERDA: Listas | DERECHA: Textos/Código) --- */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          
+
           {/* COLUMNA IZQUIERDA */}
           <div className="lg:col-span-4 space-y-12">
-            
+
             {/* Highlights (Nuevo) */}
             {project.highlights && project.highlights.length > 0 && (
               <div>
@@ -253,7 +252,7 @@ export default function ProjectDetailTechnical() {
                       <div className="absolute w-2 h-2 bg-indigo-500 rounded-full -left-[4.5px] top-1.5 shadow-[0_0_8px_rgba(99,102,241,0.5)]"></div>
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-[10px] font-mono text-white bg-white/5 px-2 py-0.5 rounded border border-white/10">{log.version}</span>
-                        <span className="text-[10px] text-gray-500 flex items-center gap-1"><Clock size={10}/> {log.date}</span>
+                        <span className="text-[10px] text-gray-500 flex items-center gap-1"><Clock size={10} /> {log.date}</span>
                       </div>
                       <ul className="space-y-2">
                         {log.updates && log.updates.map((update: string, j: number) => (
@@ -269,7 +268,7 @@ export default function ProjectDetailTechnical() {
 
           {/* COLUMNA DERECHA */}
           <div className="lg:col-span-8 space-y-16">
-            
+
             {/* Análisis y Seguridad */}
             {project.analysis_text && (
               <section>

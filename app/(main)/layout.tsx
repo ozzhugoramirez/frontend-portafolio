@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
-import CaptchaWrapper from './CaptchaWrapper';
+
+import CaptchaWrapper from "./CaptchaWrapper";
 
 export const metadata: Metadata = {
   title: "Sebastian Villalba | Software Engineer",
@@ -28,6 +29,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <CaptchaWrapper>
           {children}
         </CaptchaWrapper>
+
       </main>
 
       <footer className="w-full py-12 border-t border-gray-800/50 text-center bg-[#09090b]">
