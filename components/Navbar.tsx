@@ -1,160 +1,206 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Download, Beaker, Home, Menu, X, Mail } from 'lucide-react'; 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { getProfile, trackEvent } from '@/lib/api'; 
+import { useState, useEffect } from "react";
+import { Menu, X, Plus } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { getProfile, trackEvent } from "@/lib/api";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
+
+const mainTabs = [
+  { label: "About", href: "/about" },
+  { label: "Projects", href: "/projects" },
+  { label: "Lab", href: "/lab" },
+];
+
+const panelTabs = [
+  { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
+  { label: "Projects", href: "/projects" },
+  { label: "Lab", href: "/lab" },
+  { label: "Contact", href: "/contact" },
+];
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false); 
+  const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const [cvUrl, setCvUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "auto";
+  }, [open]);
+
+  useEffect(() => {
     getProfile()
-      .then(data => {
+      .then((data) => {
         if (data.cv_file) {
-          const fullUrl = data.cv_file.startsWith('http') ? data.cv_file : `${BACKEND_URL}${data.cv_file}`;
+          const fullUrl = data.cv_file.startsWith("http")
+            ? data.cv_file
+            : `${BACKEND_URL}${data.cv_file}`;
           setCvUrl(fullUrl);
         }
       })
-      .catch(error => console.error("Error silencioso cargando CV:", error));
+      .catch(() => { });
   }, []);
 
   const handleCvDownload = () => {
-    if (cvUrl) {
-      trackEvent('download', 'cv');
-    }
+    if (cvUrl) trackEvent("download", "cv");
   };
 
-  const closeMenu = () => setIsOpen(false);
-
   return (
-    <header className="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-8 lg:px-12 py-4 bg-[#0e0e0e] border-b border-gray-800">
-      
-     
-      <div className="flex items-center gap-4 z-[60]">
-        <Link href="/" className="text-white text-sm md:text-base leading-tight font-medium hover:opacity-80 transition-opacity">
-          Sebastian <br /> Villalba
-        </Link>
-        
-        
-        <div className="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
-          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-          <span className="text-[9px] font-mono text-emerald-500 uppercase tracking-widest">Available</span>
-        </div>
-      </div>
+    <>
+      {/* NAVBAR */}
+      <nav className="sticky top-0 z-50 w-full h-14 border-b border-slate-300 bg-slate-50 flex items-center justify-between px-4">
+        <button
+          onClick={() => setOpen((prev) => !prev)}
+          className="p-2 rounded-md border border-slate-300 bg-white shadow-sm"
+        >
+          {open ? (
+            <X size={22} className="text-slate-800" />
+          ) : (
+            <Menu size={22} className="text-slate-800" />
+          )}
+        </button>
 
-   
-      <nav className="hidden lg:flex items-center bg-[#121212] border border-gray-800 rounded-full px-2 py-1 gap-1">
-        <NavTab href="/" label="Home" active={pathname === '/'} icon={<Home size={12} />} />
-        <NavTab href="/about" label="About" active={pathname === '/about'} />
-        <NavTab href="/projects" label="Projects" active={pathname.startsWith('/projects')} />
-        <NavTab href="/lab" label="Lab" active={pathname === '/lab'} isSpecial />
+        <div className="flex items-center gap-2">
+          {mainTabs.map((item) => {
+            const active = pathname.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`
+                  flex items-center gap-1 px-3 py-1 border text-sm
+                  transition-all
+                  ${active
+                    ? "bg-slate-900 text-white border-slate-900"
+                    : "border-slate-400 text-slate-800 bg-white"
+                  }
+                `}
+              >
+                {item.label}
+                {active ? "−" : <Plus size={14} />}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
-    
-      <div className="flex items-center gap-3 md:gap-6 z-[60]">
-        
-        {/* BOTÓN CV DESKTOP */}
-        <a 
-          href={cvUrl || "#"} 
-          target={cvUrl ? "_blank" : "_self"} 
-          rel="noopener noreferrer"
-          onClick={handleCvDownload}
-          className={`hidden sm:flex items-center gap-2 text-[10px] md:text-xs font-mono border px-5 py-2 rounded-full transition-all duration-300 font-medium
-            ${cvUrl ? 'border-gray-700 text-gray-300 hover:bg-white hover:text-black' : 'border-gray-800 text-gray-600 opacity-50 cursor-not-allowed'}
-          `}
-        >
-          <Download size={14} /> {cvUrl ? 'CV' : 'N/A'}
-        </a>
+      {/* PANEL */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ y: "-100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "-100%" }}
+            transition={{ duration: 0.35 }}
+            className="fixed inset-0 z-[999] bg-slate-50 flex flex-col md:flex-row overflow-hidden"
+          >
+            {/* HEADER */}
+            <div className="absolute top-0 left-0 w-full flex justify-between items-center p-4 border-b border-slate-300 z-10 bg-slate-50">
+              <span className="text-xs tracking-widest text-slate-500">
+                MENU
+              </span>
 
-        {/* BOTÓN CONTACTO DESKTOP */}
-        <Link 
-          href="/contact"
-          className="hidden md:flex items-center gap-2 bg-white text-black px-5 py-2 rounded-full text-[10px] md:text-xs font-mono font-bold hover:bg-gray-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]"
-        >
-          <Mail size={14} /> contact
-        </Link>
+              <button onClick={() => setOpen(false)}>
+                <X size={24} className="text-slate-800" />
+              </button>
+            </div>
 
-        
-        <Link 
-          href="/contact"
-          className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
-        >
-          <Mail size={20} />
-        </Link>
+            {/* IZQUIERDA */}
+            <div className="flex flex-col justify-center md:w-1/2 w-full px-6 md:px-16 pt-24">
+              <h1 className="text-4xl md:text-6xl font-serif font-semibold mb-12 text-slate-900 leading-tight">
+                Sebastian <br /> Villalba
+              </h1>
 
-        {/* BOTÓN HAMBURGUESA */}
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="lg:hidden p-2 text-gray-400 hover:text-white transition-colors"
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
+              <div className="flex flex-col gap-6">
+                {panelTabs.map((item, i) => {
+                  const active =
+                    item.href === "/"
+                      ? pathname === "/"
+                      : pathname.startsWith(item.href);
 
-      {/* MENÚ MÓVIL DESPLEGABLE */}
-      <div className={`fixed inset-0 bg-[#0e0e0e] z-[55] flex flex-col p-8 pt-32 transition-transform duration-500 ease-in-out lg:hidden ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <nav className="flex flex-col gap-6 flex-1">
-          <MobileLink href="/" label="Home" active={pathname === '/'} onClick={closeMenu} />
-          <MobileLink href="/about" label="About" active={pathname === '/about'} onClick={closeMenu} />
-          <MobileLink href="/projects" label="Projects" active={pathname.startsWith('/projects')} onClick={closeMenu} />
-          <MobileLink href="/lab" label="Lab Snippets" active={pathname === '/lab'} onClick={closeMenu} isSpecial />
-          
-          <div className="mt-auto space-y-4 pb-8">
-            <Link 
-              href="/contact"
-              onClick={closeMenu}
-              className="flex items-center justify-center gap-3 bg-white text-black py-4 rounded-2xl font-mono text-sm uppercase tracking-widest font-bold shadow-[0_0_20px_rgba(255,255,255,0.1)]"
-            >
-              <Mail size={18} /> Start Contact
-            </Link>
+                  return (
+                    <motion.div
+                      key={item.label}
+                      initial={{ opacity: 0, x: -30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                    >
+                      <Link
+                        href={item.href}
+                        onClick={() => setOpen(false)}
+                        className={`group relative text-3xl md:text-4xl font-serif tracking-tight transition-all duration-300 ${active
+                            ? "text-slate-900"
+                            : "text-slate-400 hover:text-slate-900"
+                          }`}
+                      >
+                        {item.label}
 
-            <a 
-              href={cvUrl || "#"} 
-              onClick={() => { handleCvDownload(); closeMenu(); }}
-              className="flex items-center justify-center gap-3 bg-[#121212] border border-gray-800 text-gray-300 py-4 rounded-2xl font-mono text-sm uppercase tracking-widest font-bold hover:text-white transition-colors"
-            >
-              <Download size={18} /> download cv
-            </a>
-          </div>
-        </nav>
-      </div>
-    </header>
-  );
-}
+                        {/* underline animado */}
+                        <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-slate-900 transition-all duration-300 group-hover:w-full"></span>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
 
+              {/* ACCIONES */}
+              <div className="mt-12 flex flex-col gap-4">
+                <a
+                  href={cvUrl || "#"}
+                  onClick={() => {
+                    handleCvDownload();
+                    setOpen(false);
+                  }}
+                  className="text-slate-500 hover:text-slate-900 transition"
+                >
+                  Download CV
+                </a>
+              </div>
+            </div>
 
-function NavTab({ href, label, active, isSpecial = false, icon }: any) {
-  return (
-    <Link href={href} className={`relative px-5 py-2 rounded-full text-[11px] uppercase tracking-widest font-medium transition-all duration-300 flex items-center gap-2 ${active ? 'text-white' : 'text-gray-500 hover:text-gray-300 hover:bg-[#1f1f1f]'}`}>
-      {icon} {isSpecial && <Beaker size={12} className={active ? 'text-indigo-400' : ''} />} {label}
-      {active && <div className="absolute -bottom-[5px] left-1/2 -translate-x-1/2 w-4 h-[2px] bg-white rounded-full blur-[1px]" />}
-    </Link>
-  );
-}
+            {/* DERECHA DECORATIVA */}
+            <div className="hidden md:flex md:w-1/2 items-center justify-center relative overflow-hidden">
 
-function MobileLink({ href, label, active, onClick, isSpecial = false }: any) {
-  return (
-    <Link 
-      href={href} 
-      onClick={onClick}
-      className={`text-3xl font-mono tracking-tighter transition-all ${active ? 'text-white' : 'text-gray-400 hover:text-white'} flex items-center gap-4`}
-    >
-      {label} {isSpecial && <Beaker size={24} className="text-indigo-500" />}
-      {active && <ArrowRight size={24} className="text-indigo-500" />}
-    </Link>
-  );
-}
+              {/* patrón */}
+              <div className="absolute inset-0 opacity-[0.05] bg-[radial-gradient(circle_at_1px_1px,_#000_1px,_transparent_0)] [background-size:40px_40px]" />
 
-function ArrowRight({ size, className }: any) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="M5 12h14M12 5l7 7-7 7"/>
-    </svg>
+              {/* SVG */}
+              <svg
+                className="absolute max-w-full max-h-full w-[80%] h-[80%] text-slate-900 opacity-10"
+                viewBox="0 0 500 500"
+                fill="none"
+              >
+                <path
+                  d="M50 250 C150 50, 350 450, 450 250"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M100 300 C200 100, 300 400, 400 200"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                />
+              </svg>
+
+              {/* marca */}
+              <div className="absolute text-[120px] font-serif text-slate-900 opacity-[0.03] select-none">
+                SV
+              </div>
+            </div>
+
+            {/* FOOTER */}
+            <div className="absolute bottom-0 left-0 w-full p-4 border-t border-slate-300 text-xs text-slate-500 bg-slate-50">
+              sebastianvillalba.dev
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

@@ -5,9 +5,12 @@
   --foreground: #171717;
 }
 
-.grecaptcha-badge { 
-    visibility: hidden; 
+.grecaptcha-badge {
+  visibility: hidden;
+  pointer-events: none !important;
 }
+
+
 
 @theme inline {
   --color-background: var(--background);
@@ -23,8 +26,8 @@
   }
 }
 
+
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
 }

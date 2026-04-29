@@ -2,8 +2,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Github, Linkedin, Mail, ArrowRight, ArrowLeft, ChevronDown, ExternalLink, ShieldCheck, Youtube } from 'lucide-react';
-import Navbar from '@/components/Navbar'; 
-import { getProfile, getProjects, trackEvent } from '@/lib/api'; 
+
+import { getProfile, getProjects, trackEvent } from '@/lib/api';
 import Link from 'next/link';
 
 
@@ -53,7 +53,7 @@ export default function Portfolio() {
   const [loading, setLoading] = useState(true);
   const [activeProject, setActiveProject] = useState(0);
 
-  
+
   useEffect(() => {
     Promise.all([getProfile(), getProjects()])
       .then(([profileData, projectsData]) => {
@@ -62,7 +62,7 @@ export default function Portfolio() {
         setProjects(projArray);
         setLoading(false);
 
-        
+
         trackEvent('view', 'home');
       })
       .catch(err => {
@@ -71,12 +71,12 @@ export default function Portfolio() {
       });
   }, []);
 
- 
+
   useEffect(() => {
     if (projects.length <= 1) return;
     const interval = setInterval(() => {
       setActiveProject((prev) => (prev + 1) % projects.length);
-    }, 5000); 
+    }, 5000);
     return () => clearInterval(interval);
   }, [projects]);
 
@@ -88,8 +88,9 @@ export default function Portfolio() {
   const prevProject = () => setActiveProject((prev) => (prev === 0 ? projects.length - 1 : prev - 1));
 
   return (
-    <div className="bg-[#0e0e0e] text-gray-400 font-sans selection:bg-gray-700 selection:text-white pb-20 overflow-x-hidden">
-      <Navbar />
+
+    <div className="bg-[#0e0e0e] text-gray-400 font-sans selection:bg-gray-700 selection:text-white pb-20">
+
 
       {/* =========================================
           SECCIÓN 1: PANTALLA COMPLETA ESTRICTA
@@ -100,12 +101,12 @@ export default function Portfolio() {
         {/* --- TÍTULO Y REDES --- */}
         <div className="flex-1 flex flex-col justify-center z-10 w-full">
           <FadeInSection>
-            
+
             <h1 className="text-5xl sm:text-6xl md:text-[6.5vw] font-mono text-white tracking-tighter mb-4 w-full">
               <div className="flex flex-wrap items-center gap-4 md:gap-6 leading-[0.95]">
                 <span>Software</span>
                 <Link
-                  href="/projects" 
+                  href="/projects"
                   className="flex-shrink-0 flex items-center gap-2 text-xs md:text-sm font-sans font-medium bg-white text-black px-5 py-2.5 rounded-full hover:bg-gray-200 transition cursor-pointer tracking-normal leading-normal shadow-xl z-20"
                 >
                   Projects <ArrowRight size={16} />
@@ -118,7 +119,7 @@ export default function Portfolio() {
               <p className="text-xs md:text-sm max-w-sm leading-relaxed">
                 {profile?.hero_title || "Ingeniería con propósito."}
               </p>
-             
+
               <div className="flex flex-wrap gap-2 md:gap-3 justify-start lg:justify-end">
                 {profile?.social_links?.github && <SocialButton link={profile.social_links.github} icon={<Github size={14} />} label="Github" />}
                 {profile?.social_links?.linkedin && <SocialButton link={profile.social_links.linkedin} icon={<Linkedin size={14} />} label="LinkedIn" />}
@@ -136,18 +137,18 @@ export default function Portfolio() {
           <FadeInSection delay={300}>
             {projects.length > 0 ? (
               <div className="flex items-center justify-center relative w-full h-40 md:h-52 overflow-hidden">
-                
+
                 <button onClick={prevProject} className="hidden md:flex absolute left-0 z-30 p-3 border border-gray-700 rounded-full hover:bg-gray-800 hover:text-white transition bg-[#0e0e0e] shadow-lg">
                   <ArrowLeft size={16} />
                 </button>
 
                 {projects.map((proj, index) => {
-                  let position = 2; 
-                  if (index === activeProject) position = 0; 
-                  else if (index === (activeProject + 1) % projects.length) position = 1; 
-                  else if (index === (activeProject - 1 + projects.length) % projects.length) position = -1; 
+                  let position = 2;
+                  if (index === activeProject) position = 0;
+                  else if (index === (activeProject + 1) % projects.length) position = 1;
+                  else if (index === (activeProject - 1 + projects.length) % projects.length) position = -1;
 
-                  let transformClass = "opacity-0 scale-75 translate-x-0 z-0 pointer-events-none"; 
+                  let transformClass = "opacity-0 scale-75 translate-x-0 z-0 pointer-events-none";
                   if (position === 0) {
                     transformClass = "opacity-100 scale-100 z-20 translate-x-0";
                   } else if (position === -1) {
@@ -181,7 +182,7 @@ export default function Portfolio() {
           SECCIONES CON SCROLL
           ========================================= */}
       <div className="max-w-[1400px] mx-auto px-4 md:px-8 lg:px-12 py-20 space-y-40">
-        
+
         {/* --- ABOUT --- */}
         <section id="about" className="relative z-10">
           <FadeInSection>
@@ -191,34 +192,34 @@ export default function Portfolio() {
                 {profile?.bio_p1 || "Soy un ingeniero de software creando soluciones robustas."}
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-               <div className="space-y-4">
+              <div className="space-y-4">
                 {profile?.arsenal && profile.arsenal.length > 0 ? (
                   profile.arsenal.map((item: any, idx: number) => (
-                    <SkillBlock 
-                      key={idx} 
-                      title={item.category} 
-                      skills={item.skills.join(' / ')} 
-                      bgColor={idx === 0 ? "bg-white" : "bg-transparent"} 
-                      textColor={idx === 0 ? "text-black" : "text-gray-400"} 
+                    <SkillBlock
+                      key={idx}
+                      title={item.category}
+                      skills={item.skills.join(' / ')}
+                      bgColor={idx === 0 ? "bg-white" : "bg-transparent"}
+                      textColor={idx === 0 ? "text-black" : "text-gray-400"}
                     />
                   ))
                 ) : (
                   <div className="text-xs text-gray-600 font-mono italic border border-white/5 p-6 rounded-3xl">Datos de arsenal no encontrados.</div>
                 )}
               </div>
-              
+
               <div className="h-full min-h-[400px] rounded-[2rem] bg-gray-800 relative grayscale hover:grayscale-0 transition-all duration-500 flex items-center justify-center overflow-hidden border border-white/5">
-                 {profile?.profile_photo ? (
-                    <img 
-                      src={profile.profile_photo.startsWith('http') ? profile.profile_photo : `${process.env.NEXT_PUBLIC_BACKEND_URL}${profile.profile_photo}`} 
-                      alt="Sebastian Villalba" 
-                      className="w-full h-full object-cover"
-                    />
-                 ) : (
-                   <span className="text-xs font-mono text-gray-500">[ Avatar_Module_Offline ]</span>
-                 )}
+                {profile?.profile_photo ? (
+                  <img
+                    src={profile.profile_photo.startsWith('http') ? profile.profile_photo : `${process.env.NEXT_PUBLIC_BACKEND_URL}${profile.profile_photo}`}
+                    alt="Sebastian Villalba"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xs font-mono text-gray-500">[ Avatar_Module_Offline ]</span>
+                )}
               </div>
             </div>
           </FadeInSection>
@@ -228,21 +229,21 @@ export default function Portfolio() {
         <section id="certificates" className="relative z-10">
           <FadeInSection>
             <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-gray-800 pb-8">
-               <div>
-                  <h2 className="text-4xl md:text-5xl font-mono text-white mb-2">Certifications</h2>
-               </div>
-               <span className="text-xs uppercase tracking-widest text-gray-500 hidden md:block">... /Credentials ...</span>
+              <div>
+                <h2 className="text-4xl md:text-5xl font-mono text-white mb-2">Certifications</h2>
+              </div>
+              <span className="text-xs uppercase tracking-widest text-gray-500 hidden md:block">... /Credentials ...</span>
             </div>
 
             <div className="flex flex-col gap-4">
               {profile?.certifications && profile.certifications.length > 0 ? (
                 profile.certifications.map((cert: any, idx: number) => (
-                  <CredentialRow 
+                  <CredentialRow
                     key={idx}
-                    title={cert.title} 
-                    issuer={cert.issuer} 
-                    date={cert.date} 
-                    link={cert.link} 
+                    title={cert.title}
+                    issuer={cert.issuer}
+                    date={cert.date}
+                    link={cert.link}
                   />
                 ))
               ) : (
@@ -270,11 +271,11 @@ function SocialButton({ icon, label, link }: { icon: React.ReactNode, label: str
   };
 
   return (
-    <a 
-      href={link} 
-      target="_blank" 
-      rel="noopener noreferrer" 
-      onClick={handleClick} 
+    <a
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={handleClick}
       className="flex items-center gap-2 border border-gray-800 bg-[#151515] px-4 py-2 rounded-full text-xs hover:text-white hover:border-gray-500 transition cursor-pointer"
     >
       {icon} {label}
@@ -284,11 +285,11 @@ function SocialButton({ icon, label, link }: { icon: React.ReactNode, label: str
 
 function ProjectCard({ project, isMain = false }: { project: any, isMain?: boolean }) {
   if (!project) return null;
-  const imageUrl = project.image_main 
-    ? (project.image_main.startsWith('http') ? project.image_main : `${process.env.NEXT_PUBLIC_BACKEND_URL}${project.image_main}`) 
+  const imageUrl = project.image_main
+    ? (project.image_main.startsWith('http') ? project.image_main : `${process.env.NEXT_PUBLIC_BACKEND_URL}${project.image_main}`)
     : null;
 
- 
+
   const handleProjectClick = () => {
     trackEvent('view', `project-${project.slug}`);
   };
@@ -301,10 +302,10 @@ function ProjectCard({ project, isMain = false }: { project: any, isMain?: boole
       <div className="flex-1 flex flex-col justify-center min-w-0">
         <h3 className={`font-mono text-white mb-2 truncate ${isMain ? 'text-lg md:text-xl' : 'text-base'}`}>{project.title}</h3>
         <p className={`text-[11px] md:text-xs text-gray-400 leading-relaxed line-clamp-2 md:line-clamp-3 ${isMain ? 'mb-4' : ''}`}>{project.short_description}</p>
-        
+
         {isMain && (
-          <a 
-            href={`/projects/${project.slug}`} 
+          <a
+            href={`/projects/${project.slug}`}
             onClick={handleProjectClick}
             className="flex items-center justify-center gap-2 text-[10px] md:text-xs bg-white text-black w-max px-5 py-2 rounded-full font-medium hover:bg-gray-200 transition mt-auto cursor-pointer"
           >
@@ -341,13 +342,13 @@ function CredentialRow({ title, issuer, date, link }: { title: string, issuer: s
           </div>
         </div>
       </div>
-      
+
       {link && link !== "#" && (
-        <a 
-          href={link} 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          onClick={() => trackEvent('click', `credential-${title.toLowerCase().replace(/\s+/g, '-')}`)} 
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackEvent('click', `credential-${title.toLowerCase().replace(/\s+/g, '-')}`)}
           className="flex items-center gap-2 text-xs border border-gray-700 px-4 py-2 rounded-full hover:text-white hover:border-white transition-colors w-full md:w-auto justify-center md:justify-start"
         >
           Validar Credencial <ExternalLink size={14} />
@@ -360,7 +361,7 @@ function CredentialRow({ title, issuer, date, link }: { title: string, issuer: s
 function TikTokIcon({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 448 512" fill="currentColor">
-      <path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 185 188.31V278.2a74.62 74.62 0 1 0 52.23 71.18V0l88 0a121.18 121.18 0 0 0 1.86 22.17h0A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14Z"/>
+      <path d="M448 209.91a210.06 210.06 0 0 1-122.77-39.25V349.38A162.55 162.55 0 1 1 185 188.31V278.2a74.62 74.62 0 1 0 52.23 71.18V0l88 0a121.18 121.18 0 0 0 1.86 22.17h0A122.18 122.18 0 0 0 381 102.39a121.43 121.43 0 0 0 67 20.14Z" />
     </svg>
   );
 }
