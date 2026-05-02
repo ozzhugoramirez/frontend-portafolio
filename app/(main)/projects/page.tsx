@@ -1,312 +1,226 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { getProjects, trackEvent } from '@/lib/api';
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
-  Github, ExternalLink, Server, LayoutTemplate,
-  ShieldCheck, ArrowRight, ChevronLeft, ChevronRight,
-  Code2, Terminal, Smartphone, Database, Globe
-} from 'lucide-react';
+  Terminal, Search, ArrowRight, FolderOpen, AlertTriangle,
+  Code2, ExternalLink, Activity
+} from "lucide-react";
+import { getProjects, trackEvent } from "@/lib/api";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
-const ICON_MAP: Record<string, React.ReactNode> = {
-  server: <Server size={20} />,
-  layout: <LayoutTemplate size={20} />,
-  shield: <ShieldCheck size={20} />,
-  code: <Code2 size={20} />,
-  terminal: <Terminal size={20} />,
-  mobile: <Smartphone size={20} />,
-  database: <Database size={20} />,
-  globe: <Globe size={20} />,
-  default: <Code2 size={20} />
-};
-
-function FadeInSection({ children }: { children: React.ReactNode }) {
-  const [isVisible, setVisible] = useState(false);
-  const domRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const currentRef = domRef.current;
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          if (currentRef) observer.unobserve(currentRef);
-        }
-      });
-    }, { threshold: 0.15 });
-
-    if (currentRef) observer.observe(currentRef);
-    return () => { if (currentRef) observer.unobserve(currentRef); };
-  }, []);
-
-  return (
-    <div ref={domRef} className={`transition-all duration-1000 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24'}`}>
-      {children}
-    </div>
-  );
-}
-
-const getDynamicCategories = (projects: any[]) => {
-  const cats = new Set(projects.map(p => p.category));
-  return ["Todos", ...Array.from(cats)];
-};
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
 export default function ProjectsPage() {
-  const [projectsData, setProjectsData] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const [activeFilter, setActiveFilter] = useState("Todos");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     getProjects()
-      .then(data => {
-        const results = data.results ? data.results : data;
-        setProjectsData(results);
+      .then((data) => {
+        const projArray = data.results ? data.results : data;
+        setProjects(projArray);
         setLoading(false);
-
-        trackEvent('view', 'projects_page');
+        trackEvent('view', 'projects_list');
       })
-      .catch(error => {
-        console.error("Error al cargar proyectos:", error);
+      .catch((error) => {
+        console.error("Error cargando proyectos:", error);
         setLoading(false);
       });
   }, []);
 
-  const CATEGORIES = getDynamicCategories(projectsData);
+  // Función para filtrar proyectos en tiempo real
+  const filteredProjects = projects.filter((proj) => {
+    const query = searchQuery.toLowerCase();
+    const titleMatch = proj.title?.toLowerCase().includes(query);
+    const descMatch = proj.short_description?.toLowerCase().includes(query);
+    return titleMatch || descMatch;
+  });
 
-  const filteredProjects = activeFilter === "Todos"
-    ? projectsData
-    : projectsData.filter(p => p.category === activeFilter);
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [activeFilter]);
-
-  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
-  const paginatedProjects = filteredProjects.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-
-  const handleProjectClick = (slug: string) => {
-    trackEvent('view', `project-${slug}`);
-  };
-
+  // Pantalla de carga Brutalista
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center font-mono text-gray-500 text-xs tracking-widest uppercase">
-        Sincronizando repositorios...
+      <div className="min-h-[calc(100vh-64px)] bg-[#f4f4f0] flex flex-col items-center justify-center font-mono text-black">
+        <div className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 md:p-10 flex flex-col items-center gap-4">
+          <FolderOpen size={48} className="animate-bounce" />
+          <h2 className="text-xl md:text-2xl font-bold uppercase tracking-widest text-center">
+            Escaneando <br /> Directorio...
+          </h2>
+          <div className="w-full bg-gray-200 h-4 border-2 border-black overflow-hidden mt-4 min-w-[200px] max-w-[300px]">
+            <div className="bg-black h-full w-2/3 animate-[pulse_1s_ease-in-out_infinite]"></div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-gray-400 font-sans selection:bg-gray-700 selection:text-white pb-32 overflow-x-hidden">
+    <div className="relative min-h-screen w-full bg-[#f4f4f0] text-black selection:bg-yellow-300 selection:text-black font-sans pb-24 pt-20 md:pt-28 px-4 md:px-6">
 
+      {/* Patrón de grilla retro */}
+      <div className="fixed inset-0 opacity-[0.15] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
-      <header className="pt-32 pb-12 px-4 md:px-8 lg:px-12 max-w-[1400px] mx-auto">
-        <FadeInSection>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-gray-800/50 pb-12">
-            <div>
-              <h1 className="text-5xl md:text-7xl font-mono text-white tracking-tighter mb-4">
-                /projects
-              </h1>
-              <p className="max-w-xl text-sm md:text-base leading-relaxed text-gray-500">
-                Featured projects and case studies. A journey through my solutions in web development, cloud architecture, and cybersecurity.
-              </p>
+      <main className="relative z-10 max-w-[1000px] mx-auto">
+
+        {/* =========================================
+            PANEL DE CONTROL (Buscador y Stats)
+            ========================================= */}
+        <div className="mb-8 md:mb-12 sticky top-20 z-30">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col md:flex-row border-4 border-black bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+          >
+            {/* Header de la consola */}
+            <div className="bg-black text-white p-3 md:w-48 flex items-center justify-between md:justify-center border-b-4 md:border-b-0 md:border-r-4 border-black shrink-0">
+              <span className="font-mono text-xs font-bold uppercase flex items-center gap-2">
+                <Terminal size={14} className="text-cyan-400" /> /projects
+              </span>
+              <span className="bg-white text-black font-mono text-[10px] px-1.5 font-bold">
+                {filteredProjects.length} RES
+              </span>
             </div>
-            <div className="text-xs font-mono uppercase tracking-widest text-gray-600 hidden md:block text-right">
-              Mostrando {filteredProjects.length} <br /> proyectos
+
+            {/* Input de Búsqueda */}
+            <div className="flex-1 flex items-center relative bg-white overflow-hidden">
+              <div className="pl-4 text-gray-400">
+                <Search size={20} strokeWidth={3} />
+              </div>
+              <input
+                type="text"
+                placeholder="Buscar por nombre o tecnología..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full p-4 bg-transparent outline-none font-bold text-sm md:text-base uppercase placeholder:text-gray-400"
+              />
             </div>
-          </div>
-        </FadeInSection>
+          </motion.div>
+        </div>
 
-        <FadeInSection>
-          <div className="flex flex-wrap gap-3 mt-8">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveFilter(cat)}
-                className={`px-5 py-2.5 rounded-full text-[10px] md:text-xs font-mono uppercase tracking-widest transition-all duration-300 border ${activeFilter === cat
-                    ? 'bg-white text-black border-white'
-                    : 'bg-transparent text-gray-500 border-gray-800 hover:border-gray-500 hover:text-white'
-                  }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </FadeInSection>
-      </header>
+        {/* =========================================
+            LISTADO DE PROYECTOS (Layout Expediente)
+            ========================================= */}
+        <div className="flex flex-col gap-8 md:gap-10">
+          <AnimatePresence>
+            {filteredProjects.length > 0 ? (
+              filteredProjects.map((proj, index) => {
+                const imageUrl = proj.image_main
+                  ? (proj.image_main.startsWith('http') ? proj.image_main : `${BACKEND_URL}${proj.image_main}`)
+                  : "https://images.unsplash.com/photo-1555066931-4365d14bab8c?q=80&w=800&auto=format&fit=crop";
 
-      <main className="px-4 md:px-8 lg:px-12 max-w-[1400px] mx-auto mt-12 space-y-32">
-        {paginatedProjects.length === 0 ? (
-          <div className="text-center py-20 text-gray-500 font-mono text-sm">
-            No hay proyectos en esta categoría por ahora.
-          </div>
-        ) : (
-          paginatedProjects.map((project, index) => {
-            const isEven = index % 2 === 0;
-            const projectIcon = ICON_MAP[project.icon_name] || ICON_MAP['default'];
+                // Si tu API trae un array de tecnologías, lo usamos. Si no, mostramos un fallback.
+                const techs = proj.technologies || ["Backend", "Cloud", "System"];
 
-            return (
-              <FadeInSection key={project.slug}>
-                <article className={`flex flex-col ${isEven ? 'lg:flex-row' : 'lg:flex-row-reverse'} gap-12 lg:gap-20 items-center`}>
-
-                  {/* IMAGEN DEL PROYECTO (Con rastreo) */}
-                  <Link
-                    href={`/projects/${project.slug}`}
-                    onClick={() => handleProjectClick(project.slug)}
-                    className="w-full lg:w-1/2 relative group block"
+                return (
+                  <motion.div
+                    key={proj.slug || index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="group flex flex-col md:flex-row border-4 border-black bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] transition-all duration-300"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-2xl rounded-full"></div>
-                    <div className={`w-full aspect-video md:aspect-[4/3] rounded-[2rem] border border-gray-800 bg-gradient-to-br ${project.gradient_class || 'from-zinc-800 to-black'} shadow-2xl relative overflow-hidden transition-transform duration-700 group-hover:scale-[1.02]`}>
-                      {project.image_main ? (
-                        <img
-                          src={project.image_main.startsWith('http') ? project.image_main : `${BACKEND_URL}${project.image_main}`}
-                          alt={project.title}
-                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-gray-600 font-mono text-sm opacity-50">
-                          [ Imagen de {project.title} ]
-                        </div>
-                      )}
-                    </div>
-                  </Link>
-
-                  <div className="w-full lg:w-1/2 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="p-2.5 bg-[#121214] border border-gray-800 rounded-xl text-white">
-                        {projectIcon}
-                      </div>
-                      <span className="text-xs font-mono uppercase tracking-widest text-indigo-400">
-                        {project.type}
-                      </span>
-                    </div>
-
-                    {/* TÍTULO DEL PROYECTO (Con rastreo) */}
+                    {/* Lado Izquierdo: IMAGEN */}
                     <Link
-                      href={`/projects/${project.slug}`}
-                      onClick={() => handleProjectClick(project.slug)}
+                      href={`/projects/${proj.slug}`}
+                      className="w-full md:w-2/5 aspect-video md:aspect-auto border-b-4 md:border-b-0 md:border-r-4 border-black relative overflow-hidden bg-gray-200 shrink-0 cursor-pointer"
                     >
-                      <h2 className="text-4xl md:text-5xl font-medium text-white mb-6 tracking-tight hover:text-indigo-400 transition-colors">
-                        {project.title}
-                      </h2>
+                      <img
+                        src={imageUrl}
+                        alt={proj.title}
+                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
+                      />
+                      {/* Badge decorativo */}
+                      <div className="absolute top-3 left-3 bg-yellow-300 border-2 border-black px-2 py-0.5 font-mono text-[10px] font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1">
+                        <Activity size={12} /> {proj.status || "DEPLOYED"}
+                      </div>
                     </Link>
 
-                    <p className="text-sm md:text-base text-gray-400 leading-relaxed mb-8">
-                      {project.short_description}
-                    </p>
+                    {/* Lado Derecho: CONTENIDO */}
+                    <div className="p-4 md:p-6 lg:p-8 flex flex-col justify-between flex-1 bg-[#f4f4f0]">
+                      <div>
+                        <div className="flex justify-between items-start gap-4 mb-3">
+                          <h2 className="text-2xl md:text-3xl font-black uppercase tracking-tight line-clamp-2 group-hover:text-pink-600 transition-colors">
+                            {proj.title}
+                          </h2>
+                          <Link
+                            href={`/projects/${proj.slug}`}
+                            onClick={() => trackEvent('click', `view_project_icon_${proj.slug}`)}
+                            className="w-10 h-10 shrink-0 border-4 border-black bg-white flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+                          >
+                            <ArrowRight size={20} strokeWidth={3} />
+                          </Link>
+                        </div>
 
-                    <div className="grid grid-cols-2 gap-y-4 mb-8 border-y border-gray-800/50 py-6">
-                      <div>
-                        <h4 className="text-[10px] font-mono uppercase tracking-widest text-gray-600 mb-3">Stack Principal</h4>
-                        <ul className="flex flex-wrap gap-2">
-                          {project.tech_stack && project.tech_stack.map((t: string) => (
-                            <li key={t} className="text-xs text-gray-300 bg-[#121214] border border-gray-800 px-3 py-1 rounded-full">
-                              {t}
-                            </li>
+                        <p className="text-sm md:text-base font-medium text-gray-700 leading-relaxed mb-6 line-clamp-3">
+                          {proj.short_description || "Información del módulo no disponible. Acceda al detalle para más especificaciones."}
+                        </p>
+
+                        {/* Tecnologías */}
+                        <div className="flex flex-wrap gap-2 mb-6">
+                          {techs.map((tech: string, i: number) => (
+                            <span
+                              key={i}
+                              className="bg-black text-white font-mono text-[9px] md:text-[10px] uppercase font-bold px-2 py-1"
+                            >
+                              {tech}
+                            </span>
                           ))}
-                        </ul>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="text-[10px] font-mono uppercase tracking-widest text-gray-600 mb-3">Puntos Clave</h4>
-                        <ul className="space-y-2">
-                          {project.highlights && project.highlights.map((h: string) => (
-                            <li key={h} className="text-xs text-gray-300 flex items-center gap-2">
-                              <span className="w-1 h-1 bg-indigo-500 rounded-full"></span> {h}
-                            </li>
-                          ))}
-                        </ul>
+
+                      <div className="flex gap-3">
+                        <Link
+                          href={`/projects/${proj.slug}`}
+                          onClick={() => trackEvent('click', `view_project_btn_${proj.slug}`)}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-4 border-black bg-cyan-300 text-black font-black uppercase tracking-widest text-xs md:text-sm hover:bg-yellow-300 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none"
+                        >
+                          <Code2 size={16} strokeWidth={3} /> Inspeccionar
+                        </Link>
+
+                        {/* Botón opcional para repo externo (si la API lo trae) */}
+                        {proj.repository_url && (
+                          <a
+                            href={proj.repository_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-12 flex items-center justify-center border-4 border-black bg-white hover:bg-gray-200 transition-colors shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-y-1 active:shadow-none"
+                          >
+                            <ExternalLink size={18} strokeWidth={3} />
+                          </a>
+                        )}
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-4">
-                      {/* BOTÓN VER DETALLES (Con rastreo) */}
-                      <Link
-                        href={`/projects/${project.slug}`}
-                        onClick={() => handleProjectClick(project.slug)}
-                        className="flex items-center gap-2 bg-white text-black px-6 py-3 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors"
-                      >
-                        Ver Detalles <ArrowRight size={14} />
-                      </Link>
-
-                      {/* ENLACES EXTERNOS (Con rastreo individual) */}
-                      {project.links?.github && project.links.github !== "#" && (
-                        <a
-                          href={project.links.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => trackEvent('click', `github-${project.slug}`)}
-                          className="flex items-center gap-2 bg-[#121214] border border-gray-800 text-white px-6 py-3 rounded-full text-xs font-medium hover:border-gray-500 transition-colors"
-                        >
-                          Código <Github size={14} />
-                        </a>
-                      )}
-                      {project.links?.live && project.links.live !== "#" && (
-                        <a
-                          href={project.links.live}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => trackEvent('click', `live-${project.slug}`)}
-                          className="flex items-center gap-2 bg-[#121214] border border-gray-800 text-gray-400 px-4 py-3 rounded-full hover:text-white transition-colors"
-                        >
-                          <ExternalLink size={14} />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-
-                </article>
-              </FadeInSection>
-            );
-          })
-        )}
-
-        {/* --- CONTROLES DE PAGINACIÓN --- */}
-        {totalPages > 1 && (
-          <FadeInSection>
-            <div className="mt-20 pt-8 border-t border-gray-800 flex items-center justify-between">
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-white transition-colors disabled:opacity-30 disabled:hover:text-gray-500"
+                  </motion.div>
+                );
+              })
+            ) : (
+              /* =========================================
+                 ESTADO VACÍO (Búsqueda sin resultados)
+                 ========================================= */
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="w-full border-4 border-dashed border-gray-400 bg-white/50 p-10 md:p-16 flex flex-col items-center justify-center text-center"
               >
-                <ChevronLeft size={16} /> Anterior
-              </button>
-
-              <span className="text-[10px] font-mono text-gray-600 uppercase tracking-widest">
-                Página {currentPage} de {totalPages}
-              </span>
-
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="flex items-center gap-2 text-xs font-mono text-gray-500 hover:text-white transition-colors disabled:opacity-30 disabled:hover:text-gray-500"
-              >
-                Siguiente <ChevronRight size={16} />
-              </button>
-            </div>
-          </FadeInSection>
-        )}
-      </main>
-
-      <FadeInSection>
-        <div className="max-w-[1400px] mx-auto px-4 mt-32 text-center">
-          <h3 className="text-2xl font-mono text-white mb-6">¿Looking for more specific code?</h3>
-          <Link href="/lab" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors border-b border-gray-700 hover:border-white pb-1">
-            Visit my Snippet Lab<ArrowRight size={16} />
-          </Link>
+                <AlertTriangle size={48} className="text-red-500 mb-4" />
+                <h3 className="text-xl md:text-2xl font-black uppercase mb-2">0 Resultados</h3>
+                <p className="font-mono text-xs md:text-sm text-gray-600 max-w-sm">
+                  No hay coincidencias para "<span className="text-black font-bold">{searchQuery}</span>". Intentá con otro término técnico.
+                </p>
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="mt-6 border-2 border-black bg-white px-4 py-2 font-mono text-xs font-bold uppercase hover:bg-black hover:text-white transition-colors shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                >
+                  Limpiar Búsqueda
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </FadeInSection>
 
+      </main>
     </div>
   );
 }

@@ -1,250 +1,308 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
-import { getProfile } from '@/lib/api';
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import {
-  User, Code2, ShieldCheck, Zap, HeartPulse,
-  MapPin, GraduationCap, Terminal, Languages, ArrowRight
-} from 'lucide-react';
+  GraduationCap,
+  Terminal,
+  ExternalLink,
+  MapPin,
+  Languages,
+  Award,
+  Clock,
+  Activity,
+  Briefcase,
+  Database,
+  Cpu
+} from "lucide-react";
+import { getProfile, trackEvent } from "@/lib/api";
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+// Array de colores Brutalistas para iterar en la educación que viene de la API
+const STATUS_COLORS = [
+  "bg-green-300",
+  "bg-yellow-300",
+  "bg-pink-300",
+  "bg-cyan-300",
+  "bg-purple-300"
+];
 
+const ICONS = [
+  <Terminal size={20} key="term" />,
+  <Database size={20} key="db" />,
+  <Cpu size={20} key="cpu" />,
+  <Activity size={20} key="act" />
+];
 
-const ICON_MAP: Record<string, React.ReactNode> = {
-  shield: <ShieldCheck size={24} />,
-  zap: <Zap size={24} />,
-  heart: <HeartPulse size={24} />,
-  default: <Code2 size={24} />
-};
-
-// --- ANIMACIÓN DE ENTRADA ---
-function FadeInSection({ children, delay = 0 }: { children: React.ReactNode, delay?: number }) {
-  const [isVisible, setVisible] = useState(false);
-  const domRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const currentRef = domRef.current;
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setTimeout(() => setVisible(true), delay);
-          if (currentRef) observer.unobserve(currentRef);
-        }
-      });
-    }, { threshold: 0.1 });
-    if (currentRef) observer.observe(currentRef);
-    return () => { if (currentRef) observer.unobserve(currentRef); };
-  }, [delay]);
-
-  return (
-    <div ref={domRef} className={`transition-all duration-1000 ease-out transform ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-      {children}
-    </div>
-  );
-}
-
-export default function AboutPage() {
+export default function BioEduPage() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getProfile()
-      .then(data => {
+      .then((data) => {
         setProfile(data);
         setLoading(false);
+        trackEvent('view', 'bio_edu');
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error cargando el perfil:", error);
         setLoading(false);
       });
   }, []);
 
-  // Pantalla de carga simple manteniendo tu fondo oscuro
+  // Pantalla de carga Brutalista
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center font-mono text-gray-500 text-xs tracking-widest uppercase">
-        Iniciando conexión segura...
+      <div className="min-h-[calc(100vh-64px)] bg-[#f4f4f0] flex flex-col items-center justify-center font-mono text-black">
+        <div className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 flex flex-col items-center gap-4">
+          <Terminal size={48} className="animate-pulse" />
+          <h2 className="text-xl font-bold uppercase tracking-widest">Cargando Expediente...</h2>
+          <div className="w-full bg-gray-200 h-4 border-2 border-black overflow-hidden mt-2 min-w-[200px]">
+            <div className="bg-black h-full w-1/2 animate-[pulse_1s_ease-in-out_infinite]"></div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Si por algún motivo la API falla, mostramos un error elegante
-  if (!profile) {
-    return (
-      <div className="min-h-screen bg-[#09090b] flex items-center justify-center font-mono text-red-500/50 text-xs tracking-widest uppercase">
-        Error al cargar los datos del servidor.
-      </div>
-    );
-  }
+  // Ahora solo tomamos la información real que viene de tu API
+  const timelineData = profile?.education || [];
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-gray-400 font-sans selection:bg-indigo-900 selection:text-white pb-32">
+    <div className="relative min-h-screen w-full bg-[#f4f4f0] text-black selection:bg-cyan-300 selection:text-black overflow-x-hidden font-sans pb-24">
 
+      {/* Patrón de grilla retro */}
+      <div className="fixed inset-0 opacity-[0.15] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
 
-      <main className="pt-32 px-4 md:px-8 lg:px-12 max-w-[1200px] mx-auto">
+      <main className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-6 pt-6 md:pt-12">
 
-        {/* --- HERO / INTRO --- */}
-        <section className="mb-24">
-          <FadeInSection>
-            <div className="flex items-center gap-3 mb-6 text-indigo-400">
-              <User size={20} />
-              <span className="text-xs font-mono uppercase tracking-widest">/ About me</span>
-            </div>
-
-            <h1 className="text-5xl md:text-8xl font-mono text-white tracking-tighter mb-8 leading-[0.85]">
-              {profile.hero_title || "Ingeniería con propósito."}
-            </h1>
-          </FadeInSection>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 mt-16">
-            <div className="lg:col-span-7">
-              <FadeInSection delay={200}>
-                <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-6">
-                  {profile.bio_p1 || "Sin biografía disponible."}
-                </p>
-                <p className="text-base text-gray-400 leading-relaxed mb-8">
-                  {profile.bio_p2 || ""}
-                </p>
-
-                {/* Datos rápidos dinámicos */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 border-t border-gray-800 pt-8">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono uppercase text-gray-600">Ubicación</span>
-                    <p className="text-sm text-white flex items-center gap-1.5"><MapPin size={14} className="text-indigo-400" /> {profile.location}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono uppercase text-gray-600">Origen</span>
-                    <p className="text-sm text-white">{profile.origin}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono uppercase text-gray-600">Idiomas</span>
-                    <p className="text-sm text-white flex items-center gap-1.5"><Languages size={14} className="text-indigo-400" /> {profile.languages}</p>
-                  </div>
-                </div>
-              </FadeInSection>
-            </div>
-
-            {/* Foto Dinámica */}
-            <div className="lg:col-span-5">
-              <FadeInSection delay={400}>
-                <div className="relative group">
-                  <div className="absolute -inset-4 bg-gradient-to-tr from-indigo-500/20 to-transparent blur-2xl rounded-full opacity-50 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="aspect-[4/5] bg-gray-800 rounded-[2.5rem] overflow-hidden border border-gray-700 grayscale hover:grayscale-0 transition-all duration-700 relative">
-                    {profile.profile_photo ? (
-                      <img
-                        src={profile.profile_photo.startsWith('http') ? profile.profile_photo : `${BACKEND_URL}${profile.profile_photo}`}
-                        alt={profile.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center text-gray-500 text-xs font-mono">
-                        [ Tu foto acá ]
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </FadeInSection>
-            </div>
+        {/* --- HEADER DEL EXPEDIENTE --- */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-12 md:mb-16 border-4 border-black bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]"
+        >
+          {/* Barra superior estilo ventana */}
+          <div className="h-10 border-b-4 border-black bg-yellow-300 flex items-center justify-between px-2 md:px-4">
+            <span className="font-mono text-xs md:text-sm font-bold uppercase tracking-widest flex items-center gap-2 truncate">
+              <span className="w-3 h-3 bg-red-500 border-2 border-black rounded-full shrink-0" />
+              <span className="truncate">system_profile.bio</span>
+            </span>
+            <span className="font-mono text-[10px] md:text-xs font-bold uppercase shrink-0">
+              ID: DEV-{new Date().getFullYear().toString().slice(-2)}
+            </span>
           </div>
-        </section>
 
-        {/* --- MIS PRINCIPIOS --- */}
-        <section className="mb-32">
-          <FadeInSection>
-            <h2 className="text-xs font-mono uppercase tracking-widest text-gray-500 mb-12 border-b border-gray-800 pb-4">Filosofía de Trabajo</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {profile.work_philosophy && profile.work_philosophy.map((item: any, index: number) => (
-                <PrincipleCard
-                  key={index}
-                  icon={ICON_MAP[item.icon] || ICON_MAP['default']}
-                  title={item.title}
-                  desc={item.desc}
-                />
-              ))}
-            </div>
-          </FadeInSection>
-        </section>
+          {/* lg:items-start asegura que si el texto es largo, los widgets de la derecha queden arriba y no floten en el medio */}
+          <div className="p-5 md:p-10 lg:p-12 flex flex-col lg:flex-row gap-8 lg:gap-16 items-start lg:items-start">
 
-        {/* --- EDUCACIÓN & BACKGROUND --- */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          <FadeInSection>
-            <h2 className="text-2xl font-mono text-white mb-8 flex items-center gap-3">
-              <GraduationCap className="text-indigo-400" /> Formación Académica
-            </h2>
-            <div className="space-y-8">
-              {profile.education && profile.education.map((edu: any, index: number) => (
-                <EduItem
-                  key={index}
-                  title={edu.title}
-                  institution={edu.institution}
-                  date={edu.date}
-                  desc={edu.desc}
-                />
-              ))}
-            </div>
-          </FadeInSection>
+            {/* Título y Bio conectada a la API */}
+            <div className="flex-1 w-full">
+              <h1 className="text-[3.5rem] leading-[0.85] sm:text-6xl md:text-7xl lg:text-8xl font-black uppercase tracking-tighter mb-4 md:mb-6 break-words">
+                Bio & <br />
+                <span className="font-serif italic font-normal text-cyan-500">Edu</span>
+              </h1>
 
-          <FadeInSection delay={200}>
-            <h2 className="text-2xl font-mono text-white mb-8 flex items-center gap-3">
-              <Terminal className="text-indigo-400" /> Mi Arsenal
-            </h2>
-            <div className="bg-[#121214] border border-gray-800 rounded-3xl p-8">
-              <div className="space-y-6">
-                {profile.arsenal && profile.arsenal.map((group: any, index: number) => (
-                  <SkillGroup
-                    key={index}
-                    title={group.category}
-                    skills={group.skills}
-                  />
-                ))}
+              {/* Cambiamos text-xl por text-sm/base para que un párrafo largo se lea bien y no rompa todo */}
+              <div className="text-sm md:text-base font-medium border-l-4 border-black pl-3 md:pl-4 max-w-2xl text-gray-800 leading-relaxed space-y-4">
+                <p>
+                  {profile?.bio_p1 || "Buscando biografía en el servidor..."}
+                </p>
+                {profile?.bio_p2 && (
+                  <p className="bg-pink-200 p-3 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black">
+                    {profile.bio_p2}
+                  </p>
+                )}
               </div>
             </div>
-          </FadeInSection>
-        </section>
 
+            {/* Datos rápidos (Widgets conectados a la API) */}
+            <div className="w-full lg:w-auto flex flex-col gap-3 md:gap-4 shrink-0 lg:w-[300px]">
+              <div className="flex items-center gap-3 p-3 border-4 border-black bg-[#f4f4f0] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-transform">
+                <MapPin size={20} className="md:w-6 md:h-6 shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-mono text-[9px] md:text-[10px] text-gray-500 uppercase truncate">Base de Operaciones</p>
+                  <p className="font-bold text-xs md:text-sm uppercase truncate">{profile?.location || "CABA, Buenos Aires"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 border-4 border-black bg-[#f4f4f0] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-transform">
+                <Languages size={20} className="md:w-6 md:h-6 shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-mono text-[9px] md:text-[10px] text-gray-500 uppercase truncate">Comunicación / Idiomas</p>
+                  <p className="font-bold text-xs md:text-sm uppercase truncate">{profile?.languages || "ES / EN (B2) / Guaraní"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 border-4 border-black bg-[#f4f4f0] shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-0.5 transition-transform">
+                <Briefcase size={20} className="md:w-6 md:h-6 shrink-0" />
+                <div className="min-w-0">
+                  <p className="font-mono text-[9px] md:text-[10px] text-gray-500 uppercase truncate">Sector de Origen</p>
+                  <p className="font-bold text-xs md:text-sm uppercase truncate">{profile?.origin || "Sector Comercio / Tech"}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
+        {/* --- GRID DIVISORIO --- */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10 md:gap-12">
 
+          {/* COLUMNA IZQUIERDA: LÍNEA DE TIEMPO ACADÉMICA (Ocupa 7 columnas) */}
+          <div className="xl:col-span-7">
+            <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 border-b-4 border-black pb-3 md:pb-4">
+              <GraduationCap size={32} className="bg-cyan-300 border-2 border-black p-1 md:w-10 md:h-10" />
+              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight">Timeline</h2>
+            </div>
+
+            <div className="flex flex-col gap-6 md:gap-8 relative">
+              {timelineData.length > 0 ? (
+                <>
+                  {/* Línea vertical de la timeline */}
+                  <div className="absolute top-0 bottom-0 left-[24px] md:left-[28px] w-2 bg-black z-0"></div>
+
+                  {timelineData.map((item: any, index: number) => {
+                    const statusColor = STATUS_COLORS[index % STATUS_COLORS.length];
+                    const icon = ICONS[index % ICONS.length];
+
+                    return (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ delay: index * 0.1 }}
+                        className="relative z-10 flex gap-3 md:gap-6 w-full"
+                      >
+                        {/* Punto de la timeline */}
+                        <div className="shrink-0 mt-3 md:mt-4">
+                          <div className="w-14 h-14 md:w-16 md:h-16 rounded-full border-4 border-black bg-white flex items-center justify-center shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                            {icon}
+                          </div>
+                        </div>
+
+                        {/* Tarjeta del hito */}
+                        <div className="flex-1 border-4 border-black bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] md:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 md:hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col overflow-hidden min-w-0">
+                          <div className="border-b-4 border-black p-2 md:p-3 bg-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <span className={`font-mono text-[9px] md:text-xs font-bold uppercase px-2 py-1 border-2 border-black inline-block w-max ${statusColor}`}>
+                              REGISTRO ACADÉMICO
+                            </span>
+                            <span className="font-mono text-[10px] md:text-xs font-bold bg-black text-white px-2 py-1 w-max">
+                              {item.date}
+                            </span>
+                          </div>
+                          <div className="p-3 md:p-6">
+                            <h3 className="text-lg sm:text-xl md:text-2xl font-black uppercase tracking-tight mb-1 leading-none break-words">
+                              {item.title}
+                            </h3>
+                            <p className="font-mono text-[10px] md:text-sm text-cyan-600 font-bold uppercase mb-3 md:mb-4">
+                              {item.institution}
+                            </p>
+                            <p className="text-xs sm:text-sm md:text-base font-medium text-gray-700 leading-relaxed">
+                              {item.desc}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </>
+              ) : (
+                <div className="border-4 border-dashed border-gray-400 p-8 flex flex-col items-center justify-center text-center bg-white/50">
+                  <Terminal size={32} className="text-gray-400 mb-2" />
+                  <p className="font-mono text-xs font-bold uppercase text-gray-500">Sin registros en la base de datos.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* COLUMNA DERECHA: CERTIFICADOS (Ocupa 5 columnas) */}
+          <div className="xl:col-span-5 mt-4 md:mt-0">
+            <div className="flex items-center gap-3 md:gap-4 mb-6 md:mb-8 border-b-4 border-black pb-3 md:pb-4 xl:sticky xl:top-24 bg-[#f4f4f0] z-20">
+              <Award size={32} className="bg-yellow-300 border-2 border-black p-1 md:w-10 md:h-10" />
+              <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight">Credentials</h2>
+            </div>
+
+            <div className="flex flex-col gap-6 md:gap-8">
+              {profile?.certifications && profile.certifications.length > 0 ? (
+                profile.certifications.map((cert: any, idx: number) => {
+                  const hasImage = cert.image && cert.image !== "";
+
+                  return (
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-50px" }}
+                      transition={{ delay: idx * 0.15 }}
+                      className="w-full border-4 border-black bg-white shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] md:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] group hover:-translate-y-1 md:hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all flex flex-col"
+                    >
+                      {/* PREVIEW DEL CERTIFICADO */}
+                      <div className="w-full aspect-video bg-gray-200 border-b-4 border-black relative overflow-hidden p-1 md:p-2">
+                        <div className="absolute inset-0 bg-[radial-gradient(#ccc_2px,transparent_2px)] [background-size:16px_16px] opacity-30" />
+
+                        <div className="w-full h-full border-2 border-dashed border-gray-400 flex items-center justify-center relative z-10 overflow-hidden bg-white/50 backdrop-blur-sm">
+                          {hasImage ? (
+                            <img
+                              src={cert.image.startsWith('http') ? cert.image : `${BACKEND_URL}${cert.image}`}
+                              alt={`Certificado ${cert.title}`}
+                              className="w-full h-full object-cover mix-blend-multiply opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                            />
+                          ) : (
+                            <div className="flex flex-col items-center justify-center opacity-40">
+                              <Award size={48} className="mb-2" />
+                              <span className="font-mono text-xs font-bold uppercase">Diploma_File.pdf</span>
+                            </div>
+                          )}
+                          <div className="absolute bottom-2 right-2 bg-black text-white px-2 py-0.5 font-mono text-[9px] md:text-[10px] uppercase font-bold">
+                            VERIFIED.IMG
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* INFO Y BOTÓN DE VALIDACIÓN */}
+                      <div className="p-3 md:p-5 flex flex-col justify-between grow">
+                        <div>
+                          <div className="flex justify-between items-start gap-2 mb-2">
+                            <h3 className="text-base sm:text-lg md:text-xl font-black uppercase leading-tight">{cert.title}</h3>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1 md:gap-2 font-mono text-[9px] md:text-xs uppercase font-bold text-gray-500 mb-4 md:mb-6">
+                            <span className="bg-gray-200 text-black px-1 border border-black">{cert.issuer}</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span>{cert.date}</span>
+                          </div>
+                        </div>
+
+                        {cert.link && cert.link !== "#" ? (
+                          <a
+                            href={cert.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => trackEvent('click', `credential-${cert.title.toLowerCase().replace(/\s+/g, '-')}`)}
+                            className="w-full h-10 md:h-12 border-4 border-black bg-pink-300 hover:bg-cyan-300 text-black font-black text-sm md:text-base uppercase tracking-wider flex items-center justify-center gap-2 transition-colors active:translate-y-1 active:shadow-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                          >
+                            Validar Credencial <ExternalLink size={16} strokeWidth={3} />
+                          </a>
+                        ) : (
+                          <div className="w-full h-10 md:h-12 border-4 border-black bg-gray-200 text-gray-500 font-black text-sm md:text-base uppercase tracking-wider flex items-center justify-center gap-2">
+                            Credencial Interna <Award size={16} strokeWidth={3} />
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })
+              ) : (
+                <div className="border-4 border-dashed border-gray-400 p-4 md:p-6 flex flex-col items-center justify-center text-center bg-white/50 min-h-[200px]">
+                  <Clock size={32} className="text-gray-400 mb-2" />
+                  <p className="font-mono text-xs font-bold uppercase text-gray-500">Buscando certificaciones en la base de datos...</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+        </div>
       </main>
-    </div>
-  );
-}
-
-// --- SUBCOMPONENTES ---
-
-function PrincipleCard({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
-  return (
-    <div className="p-8 border border-gray-800 rounded-3xl hover:border-indigo-500/50 transition-colors bg-[#0d0d0f]">
-      <div className="text-indigo-400 mb-6">{icon}</div>
-      <h3 className="text-white font-medium mb-3">{title}</h3>
-      <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
-    </div>
-  );
-}
-
-function EduItem({ title, institution, date, desc }: { title: string, institution: string, date: string, desc: string }) {
-  return (
-    <div className="relative pl-8 border-l border-gray-800">
-      <div className="absolute w-2.5 h-2.5 bg-gray-800 rounded-full -left-[5.5px] top-1.5 border border-[#09090b]"></div>
-      <span className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">{date}</span>
-      <h4 className="text-lg text-white font-medium mt-1">{title}</h4>
-      <p className="text-xs text-indigo-400 font-mono mb-3">{institution}</p>
-      <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
-    </div>
-  );
-}
-
-function SkillGroup({ title, skills }: { title: string, skills: string[] }) {
-  return (
-    <div>
-      <h4 className="text-[10px] font-mono uppercase tracking-widest text-gray-600 mb-3">{title}</h4>
-      <div className="flex flex-wrap gap-2">
-        {skills.map((skill: string) => (
-          <span key={skill} className="px-3 py-1 bg-black border border-gray-800 rounded-md text-xs text-gray-300 font-mono italic">
-            {skill}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
