@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
-
 import CaptchaWrapper from "./CaptchaWrapper";
 
 export const metadata: Metadata = {
@@ -17,39 +16,32 @@ export const metadata: Metadata = {
   },
 };
 
-
-
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
-
-    <div className="flex flex-col min-h-screen bg-[#09090b]">
+    <div className="flex flex-col min-h-screen bg-slate-50">
       <Navbar />
 
       <main className="flex-1">
         <CaptchaWrapper>
           {children}
         </CaptchaWrapper>
-
       </main>
 
-      <footer className="w-full py-12 border-t border-gray-800/50 text-center bg-[#09090b]">
+      <footer className="w-full py-12 border-t border-slate-300 text-center bg-slate-50">
         <div className="max-w-[1200px] mx-auto px-4">
-
-          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gray-400 mb-4">
+          <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-500 mb-4">
             © {new Date().getFullYear()} Sebastian Villalba
           </p>
 
-
-          <p className="text-[9px] font-mono text-gray-600 uppercase tracking-widest leading-relaxed max-w-md mx-auto">
+          <p className="text-[9px] font-mono text-slate-400 uppercase tracking-widest leading-relaxed max-w-md mx-auto">
             Este sitio está protegido por reCAPTCHA. Se aplican la
-            <a href="https://policies.google.com/privacy" target="_blank" className="text-indigo-500 hover:text-indigo-400 mx-1 underline underline-offset-4">Privacidad</a>
+            <a href="https://policies.google.com/privacy" target="_blank" className="text-slate-600 hover:text-slate-900 mx-1 underline underline-offset-4 transition-colors">Privacidad</a>
             y los
-            <a href="https://policies.google.com/terms" target="_blank" className="text-indigo-500 hover:text-indigo-400 mx-1 underline underline-offset-4">Términos</a>
+            <a href="https://policies.google.com/terms" target="_blank" className="text-slate-600 hover:text-slate-900 mx-1 underline underline-offset-4 transition-colors">Términos</a>
             de Google.
           </p>
         </div>
       </footer>
-
     </div>
   );
 }
