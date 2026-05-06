@@ -1,4 +1,7 @@
+
+
 import axios from 'axios';
+import { getSession, signOut } from 'next-auth/react';
 
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL ? `${process.env.NEXT_PUBLIC_BACKEND_URL}/api` : 'http://localhost:8000/api';
 
@@ -6,30 +9,25 @@ export const api = axios.create({
   baseURL: API_URL,
 });
 
+api.interceptors.request.use(async (config) => {
+  // Pedimos la sesión actual a NextAuth en lugar de usar localStorage
+  const session = await getSession();
 
-api.interceptors.request.use((config) => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (session?.accessToken) {
+    config.headers.Authorization = `Bearer ${session.accessToken}`;
   }
   return config;
 }, (error) => {
   return Promise.reject(error);
 });
 
-
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
+  (response) => response,
+  async (error) => {
     if (error.response && error.response.status === 401) {
+      // Si el token expira o es inválido, NextAuth se encarga de desloguearte
       if (typeof window !== 'undefined') {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
+        await signOut({ callbackUrl: '/login' });
       }
     }
     return Promise.reject(error);
@@ -37,14 +35,7 @@ api.interceptors.response.use(
 );
 
 
-export const loginUser = async (credentials: any) => {
-  const response = await api.post('/token/', credentials);
-  if (response.data.access) {
-    localStorage.setItem('access_token', response.data.access);
-    localStorage.setItem('refresh_token', response.data.refresh);
-  }
-  return response.data;
-};
+
 
 
 export const getProfile = async () => {
@@ -110,13 +101,13 @@ export const deleteLabSnippet = async (id: number) => {
 
 export const trackEvent = async (action: string, target: string) => {
   try {
-    
+
     const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-    if (token) return; 
+    if (token) return;
 
     await api.post('/track/', { action, target });
   } catch (error) {
-    console.error("Error de telemetría:", error); 
+    console.error("Error de telemetría:", error);
   }
 };
 
@@ -167,8 +158,8 @@ export const getStudyPrompts = async () => {
 
 // ACTUALIZADA: Ahora recibe el promptId opcional
 export const createNotebook = async (title: string, color: string, promptId?: string) => {
-  const response = await api.post('/study/notebooks/', { 
-    title, 
+  const response = await api.post('/study/notebooks/', {
+    title,
     color,
     prompt_id: promptId // Se lo mandamos al backend
   });
@@ -177,7 +168,7 @@ export const createNotebook = async (title: string, color: string, promptId?: st
 
 // ACTUALIZADA: Ahora recibe el promptId opcional
 export const createStudyProject = async (title: string, promptId?: string) => {
-  const response = await api.post('/study/projects/', { 
+  const response = await api.post('/study/projects/', {
     title,
     prompt_id: promptId // Se lo mandamos al backend
   });
@@ -196,7 +187,7 @@ export const getChatSessions = async (notebookId?: string, projectId?: string) =
   const params = new URLSearchParams();
   if (notebookId) params.append('notebook_id', notebookId);
   if (projectId) params.append('project_id', projectId);
-  
+
   const response = await api.get(`/study/sessions/?${params.toString()}`);
   return response.data; // [{id, title}, ...]
 };
@@ -212,11 +203,11 @@ export const createChatSession = async (notebookId?: string, projectId?: string)
 export const getSessionHistory = async (sessionId: string) => {
   const response = await api.get(`/study/sessions/${sessionId}/`);
   // Ahora retorna: { messages: [...], meta: { message_count, limit } }
-  return response.data; 
+  return response.data;
 };
 
 export const sendSessionMessage = async (sessionId: string, message: string, model: string) => {
   const response = await api.post(`/study/sessions/${sessionId}/`, { message, model });
   // Ahora retorna: { role, content, meta: { message_count, limit } }
-  return response.data; 
+  return response.data;
 };

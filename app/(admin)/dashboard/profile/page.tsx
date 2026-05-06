@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { getProfile, updateProfile } from '@/lib/api'; 
-import { Save, Upload, Info, BookOpen, Cpu, FileText, CheckCircle, Image as ImageIcon, FileCheck, UserCircle, ExternalLink, Link2, Award } from 'lucide-react';
+import { getProfile, updateProfile } from '@/lib/api';
+import { Save, Upload, Info, BookOpen, Cpu, FileText, CheckCircle, Image as ImageIcon, FileCheck, UserCircle, ExternalLink, Link2, Award, Shield } from 'lucide-react';
+import PasskeyRegister from './PasskeyRegister';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
 
 const DEFAULT_PHILOSOPHY = [
   { "icon": "shield", "title": "Ejemplo Título", "desc": "Descripción de tu filosofía..." }
@@ -30,15 +30,16 @@ const DEFAULT_CERTIFICATIONS = [
 export default function AdminProfilePage() {
   const [originalData, setOriginalData] = useState<any>(null);
   const [formData, setFormData] = useState<any>(null);
-  
+
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [cvFile, setCvFile] = useState<File | null>(null);
-  
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
-  const [activeSubTab, setActiveSubTab] = useState<'general' | 'bio' | 'links' | 'json'>('general');
+
+  // Agregamos 'security' a los tabs disponibles
+  const [activeSubTab, setActiveSubTab] = useState<'general' | 'bio' | 'links' | 'json' | 'security'>('general');
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   useEffect(() => {
@@ -53,7 +54,7 @@ export default function AdminProfilePage() {
       };
       setFormData(formattedData);
       setOriginalData(formattedData);
-      
+
       if (data.profile_photo) {
         setPhotoPreview(data.profile_photo.startsWith('http') ? data.profile_photo : `${BACKEND_URL}${data.profile_photo}`);
       }
@@ -136,32 +137,34 @@ export default function AdminProfilePage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      
-      {/* HEADER: Adaptado para apilarse en móvil */}
+
+      {/* HEADER */}
       <header className="p-4 md:p-8 border-b border-white/5 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-[#080809]">
         <div>
           <h1 className="text-white text-xl md:text-2xl font-mono tracking-tighter uppercase italic">Identity_Manager</h1>
           <p className="text-[10px] text-gray-600 font-mono tracking-widest mt-1">Configuración del perfil público y archivos</p>
         </div>
-        <button 
+        <button
           onClick={handleSubmit}
           disabled={!canSave || saving}
           className={`w-full sm:w-auto flex justify-center items-center gap-2 px-6 py-3 sm:py-2.5 rounded-xl text-xs font-mono transition-all ${canSave ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-white/5 text-gray-500 cursor-not-allowed border border-white/5'}`}
         >
-          {saving ? 'Syncing...' : status === 'success' ? <><CheckCircle size={14}/> Updated</> : <><Save size={14}/> Save Changes</>}
+          {saving ? 'Syncing...' : status === 'success' ? <><CheckCircle size={14} /> Updated</> : <><Save size={14} /> Save Changes</>}
         </button>
       </header>
 
-      {/* TABS DE NAVEGACIÓN: Scroll horizontal en móvil */}
+      {/* TABS DE NAVEGACIÓN */}
       <nav className="px-4 md:px-8 pt-4 flex gap-4 md:gap-6 border-b border-white/5 bg-[#080809] overflow-x-auto custom-scrollbar whitespace-nowrap">
-        <SubTab active={activeSubTab === 'general'} onClick={() => setActiveSubTab('general')} icon={<Info size={14}/>} label="General" />
-        <SubTab active={activeSubTab === 'bio'} onClick={() => setActiveSubTab('bio')} icon={<FileText size={14}/>} label="Biografía" />
-        <SubTab active={activeSubTab === 'links'} onClick={() => setActiveSubTab('links')} icon={<Link2 size={14}/>} label="Redes & Certs" />
-        <SubTab active={activeSubTab === 'json'} onClick={() => setActiveSubTab('json')} icon={<Cpu size={14}/>} label="Data Arrays" />
+        <SubTab active={activeSubTab === 'general'} onClick={() => setActiveSubTab('general')} icon={<Info size={14} />} label="General" />
+        <SubTab active={activeSubTab === 'bio'} onClick={() => setActiveSubTab('bio')} icon={<FileText size={14} />} label="Biografía" />
+        <SubTab active={activeSubTab === 'links'} onClick={() => setActiveSubTab('links')} icon={<Link2 size={14} />} label="Redes & Certs" />
+        <SubTab active={activeSubTab === 'json'} onClick={() => setActiveSubTab('json')} icon={<Cpu size={14} />} label="Data Arrays" />
+        {/* NUEVO TAB DE SEGURIDAD */}
+        <SubTab active={activeSubTab === 'security'} onClick={() => setActiveSubTab('security')} icon={<Shield size={14} />} label="Seguridad" />
       </nav>
 
       <form className="flex-1 overflow-y-auto p-4 md:p-8 space-y-8 custom-scrollbar">
-        
+
         {/* PESTAÑA: GENERAL */}
         {activeSubTab === 'general' && (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8 animate-in fade-in duration-500">
@@ -173,7 +176,6 @@ export default function AdminProfilePage() {
             </div>
 
             <div className="space-y-6">
-            
               <div className="p-5 md:p-6 bg-[#0c0c0d] border border-white/5 rounded-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><ImageIcon size={64} /></div>
                 <label className="text-[10px] font-mono text-indigo-400 uppercase block mb-4 md:mb-6 relative z-10">Avatar / Profile Photo</label>
@@ -190,7 +192,6 @@ export default function AdminProfilePage() {
                 </div>
               </div>
 
-           
               <div className="p-5 md:p-6 bg-[#0c0c0d] border border-white/5 rounded-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity"><BookOpen size={64} /></div>
                 <label className="text-[10px] font-mono text-indigo-400 uppercase block mb-4 md:mb-6 relative z-10">Curriculum Vitae (PDF)</label>
@@ -203,7 +204,7 @@ export default function AdminProfilePage() {
                     <label htmlFor="cv-upload" className="w-full sm:w-auto cursor-pointer inline-flex justify-center items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/5 text-white px-4 py-3 sm:py-2 rounded-lg text-xs font-mono transition-all">
                       <Upload size={14} /> {cvFile ? 'Cambiar PDF' : 'Upload PDF'}
                     </label>
-                    
+
                     {cvFile ? (
                       <p className="text-[9px] font-mono text-emerald-500 mt-1">Listo: {cvFile.name}</p>
                     ) : formData.cv_file ? (
@@ -220,7 +221,7 @@ export default function AdminProfilePage() {
           </div>
         )}
 
-       
+        {/* PESTAÑA: BIO */}
         {activeSubTab === 'bio' && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div className="space-y-2">
@@ -243,20 +244,20 @@ export default function AdminProfilePage() {
                 Asegurate de que las URLs comiencen con <code>https://</code>. Si dejás el campo de una red social vacío o con un <code>#</code>, el botón se ocultará automáticamente en tu Home.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-              <JSONArea 
-                label="Social Links (Objeto JSON)" 
-                name="social_links" 
-                value={formData.social_links} 
-                onChange={handleChange} 
+              <JSONArea
+                label="Social Links (Objeto JSON)"
+                name="social_links"
+                value={formData.social_links}
+                onChange={handleChange}
                 colorClass="text-indigo-400"
               />
-              <JSONArea 
-                label="Certifications (Array JSON)" 
-                name="certifications" 
-                value={formData.certifications} 
-                onChange={handleChange} 
+              <JSONArea
+                label="Certifications (Array JSON)"
+                name="certifications"
+                value={formData.certifications}
+                onChange={handleChange}
                 colorClass="text-emerald-500/80"
               />
             </div>
@@ -272,7 +273,7 @@ export default function AdminProfilePage() {
                 Respetá las comillas dobles y la estructura de corchetes <code>[ ]</code>. Si rompés el formato, el sistema evitará que lo guardes.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
               <JSONArea label="Education Array" name="education" value={formData.education} onChange={handleChange} colorClass="text-yellow-500/80" />
               <JSONArea label="Arsenal Array" name="arsenal" value={formData.arsenal} onChange={handleChange} colorClass="text-cyan-500/80" />
@@ -280,6 +281,27 @@ export default function AdminProfilePage() {
             <JSONArea label="Filosofía de Trabajo" name="work_philosophy" value={formData.work_philosophy} onChange={handleChange} colorClass="text-rose-500/80" />
           </div>
         )}
+
+        {/* --- NUEVA PESTAÑA: SEGURIDAD (PASSKEY) --- */}
+        {activeSubTab === 'security' && (
+          <div className="animate-in fade-in duration-500 flex flex-col md:flex-row gap-6 md:gap-8">
+            <div className="flex-1 max-w-md">
+              {/* Usamos el componente externo que creamos sin ensuciar la vista principal */}
+              <PasskeyRegister />
+            </div>
+
+            <div className="flex-1 max-w-md bg-white/[0.02] border border-white/5 rounded-3xl p-6 text-sm text-gray-400 space-y-4">
+              <h3 className="text-gray-200 font-medium flex items-center gap-2"><Shield size={16} className="text-indigo-400" /> Acerca de las Passkeys</h3>
+              <p>Las Passkeys son el nuevo estándar de seguridad respaldado por Apple y Google para reemplazar las contraseñas tradicionales.</p>
+              <ul className="list-disc pl-5 space-y-2 opacity-80">
+                <li>Inmune al Phishing (la llave criptográfica nunca sale de tu equipo).</li>
+                <li>Usa tus métodos biométricos locales (Face ID o Huella).</li>
+                <li>Permite login instantáneo sin tipeos ni recordar claves.</li>
+              </ul>
+            </div>
+          </div>
+        )}
+
       </form>
     </div>
   );
@@ -300,13 +322,13 @@ function JSONArea({ label, name, value, onChange, colorClass = "text-emerald-500
   return (
     <div className="space-y-2">
       <label className="text-[10px] font-mono text-gray-500 uppercase tracking-widest px-2">{label}</label>
-      <textarea 
-        name={name} 
-        value={value} 
-        onChange={onChange} 
-        rows={12} 
-        spellCheck="false" 
-        className={`w-full bg-[#09090b] border border-white/5 rounded-2xl p-4 text-[11px] font-mono outline-none focus:border-white/20 transition-all resize-none ${colorClass}`} 
+      <textarea
+        name={name}
+        value={value}
+        onChange={onChange}
+        rows={12}
+        spellCheck="false"
+        className={`w-full bg-[#09090b] border border-white/5 rounded-2xl p-4 text-[11px] font-mono outline-none focus:border-white/20 transition-all resize-none ${colorClass}`}
       />
     </div>
   );

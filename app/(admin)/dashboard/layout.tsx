@@ -2,32 +2,32 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { 
-  LayoutDashboard, FolderKanban, Beaker, Lock, 
-  Settings, LogOut, ShieldCheck, Globe, Key, 
+import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react'; // <-- Importamos signOut de NextAuth
+import {
+  LayoutDashboard, FolderKanban, Beaker, Lock,
+  Settings, LogOut, ShieldCheck, Globe, Key,
   Zap, ChevronRight, UserCircle, Menu, X
 } from 'lucide-react';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Cerramos el menú en móvil cuando cambia la ruta
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [pathname]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    router.push('/login');
+  // Actualizamos la función para usar NextAuth
+  const handleLogout = async () => {
+    // Esto destruye la cookie segura de la sesión y te manda al login automáticamente
+    await signOut({ callbackUrl: '/login' });
   };
 
   return (
     <div className="h-screen w-full bg-[#050506] text-gray-400 font-sans flex flex-col md:flex-row overflow-hidden relative">
-      
+
       {/* Header Móvil */}
       <div className="md:hidden flex items-center justify-between p-4 bg-[#080809] border-b border-white/5 z-30 shrink-0">
         <div className="flex items-center gap-3">
@@ -36,8 +36,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
           <span className="text-white text-xs font-mono font-bold tracking-tight uppercase">Seba_Admin</span>
         </div>
-        <button 
-          onClick={() => setIsSidebarOpen(true)} 
+        <button
+          onClick={() => setIsSidebarOpen(true)}
           className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
         >
           <Menu size={24} />
@@ -46,22 +46,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Overlay Móvil */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden transition-opacity"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* --- SIDEBAR IZQUIERDO --- */}
-      <aside 
+      <aside
         className={`
           fixed inset-y-0 left-0 z-50 w-72 bg-[#080809] border-r border-white/5 flex flex-col flex-shrink-0 transition-transform duration-300 ease-in-out
           md:relative md:translate-x-0
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <button 
-          onClick={() => setIsSidebarOpen(false)} 
+        <button
+          onClick={() => setIsSidebarOpen(false)}
           className="md:hidden absolute top-5 right-4 p-2 text-gray-500 hover:text-white bg-[#121214] rounded-lg border border-white/5"
         >
           <X size={18} />
@@ -112,8 +112,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </nav>
 
         <div className="p-4 border-t border-white/5">
-          <button 
-            onClick={handleLogout} 
+          {/* Llamamos a la nueva función handleLogout */}
+          <button
+            onClick={handleLogout}
             className="flex items-center justify-between w-full px-4 py-3 rounded-xl text-xs font-mono text-gray-500 hover:text-red-400 hover:bg-red-500/5 transition-all group"
           >
             <span className="flex items-center gap-3">
@@ -136,13 +137,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
 function AdminNavTab({ href, icon, label, active, external = false }: any) {
   return (
-    <Link 
-      href={href} 
+    <Link
+      href={href}
       target={external ? "_blank" : "_self"}
       className={`
         flex items-center gap-3 px-4 py-2.5 rounded-xl text-[13px] transition-all duration-300 group
-        ${active 
-          ? 'bg-white/5 text-white border border-white/5 shadow-sm' 
+        ${active
+          ? 'bg-white/5 text-white border border-white/5 shadow-sm'
           : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.02] border border-transparent'
         }
       `}
