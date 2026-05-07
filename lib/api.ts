@@ -180,16 +180,14 @@ export const createStudyProject = async (title: string, promptId?: string) => {
 
 
 
-// --- RUTAS DEL CHAT (Actualizadas) ---
 
 export const getChatSessions = async (notebookId?: string, projectId?: string) => {
-  // Pasamos parámetros opcionales por si queremos filtrar
   const params = new URLSearchParams();
   if (notebookId) params.append('notebook_id', notebookId);
   if (projectId) params.append('project_id', projectId);
 
   const response = await api.get(`/study/sessions/?${params.toString()}`);
-  return response.data; // [{id, title}, ...]
+  return response.data;
 };
 
 export const createChatSession = async (notebookId?: string, projectId?: string) => {
@@ -197,17 +195,57 @@ export const createChatSession = async (notebookId?: string, projectId?: string)
     notebook_id: notebookId,
     project_id: projectId
   });
-  return response.data; // {id, title}
+  return response.data;
 };
 
 export const getSessionHistory = async (sessionId: string) => {
   const response = await api.get(`/study/sessions/${sessionId}/`);
-  // Ahora retorna: { messages: [...], meta: { message_count, limit } }
+
   return response.data;
 };
 
 export const sendSessionMessage = async (sessionId: string, message: string, model: string) => {
   const response = await api.post(`/study/sessions/${sessionId}/`, { message, model });
-  // Ahora retorna: { role, content, meta: { message_count, limit } }
+
+  return response.data;
+};
+
+
+
+
+// --- RUTAS DE LA LÍNEA DE TIEMPO (TIMELINE) ---
+
+export const getTimelineEvents = async () => {
+  const response = await api.get('/timeline/');
+  return response.data;
+};
+
+export const getTimelineEventBySlug = async (slug: string) => {
+  const response = await api.get(`/timeline/${slug}/`);
+  return response.data;
+};
+
+
+export const createTimelineEvent = async (formData: FormData) => {
+  const response = await api.post('/timeline/', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
+};
+
+export const updateTimelineEvent = async (slug: string, formData: FormData) => {
+  const response = await api.put(`/timeline/${slug}/`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
+};
+
+export const deleteTimelineEvent = async (slug: string) => {
+  const response = await api.delete(`/timeline/${slug}/`);
+  return response.data;
+};
+
+export const deleteTimelineMedia = async (mediaId: number) => {
+  const response = await api.delete(`/timeline/media/${mediaId}/`);
   return response.data;
 };

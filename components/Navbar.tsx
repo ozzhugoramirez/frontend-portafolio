@@ -13,14 +13,14 @@ const BACKEND_URL =
 const mainTabs = [
   { label: "Bio & Edu", href: "/about" },
   { label: "Projects", href: "/projects" },
-  { label: "Timeline", href: "/lab" },
+  { label: "Timeline", href: "/timeline" },
 ];
 
 const panelTabs = [
   { label: "Home", href: "/" },
   { label: "Bio & Edu", href: "/about" },
   { label: "Projects", href: "/projects" },
-  { label: "Timeline", href: "/lab" },
+  { label: "Timeline", href: "/timeline" },
   { label: "Contact", href: "/contact" },
 ];
 
