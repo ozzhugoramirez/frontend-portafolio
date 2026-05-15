@@ -249,3 +249,43 @@ export const deleteTimelineMedia = async (mediaId: number) => {
   const response = await api.delete(`/timeline/media/${mediaId}/`);
   return response.data;
 };
+
+
+// --- RUTAS DEL PLANNER INTERNO ---
+
+export const getWorkProjects = async () => {
+  const response = await api.get('/planner/projects/');
+  return response.data;
+};
+
+export const getWorkProjectById = async (id: number) => {
+  const response = await api.get(`/planner/projects/${id}/`);
+  return response.data;
+};
+
+export const createWorkProject = async (data: { title: string, description?: string, status?: string, target_date?: string, repository_url?: string }) => {
+  const response = await api.post('/planner/projects/', data);
+  return response.data;
+};
+
+export const updateWorkProject = async (id: number, data: any) => {
+  const response = await api.patch(`/planner/projects/${id}/`, data);
+  return response.data;
+};
+
+export const deleteWorkProject = async (id: number) => {
+  const response = await api.delete(`/planner/projects/${id}/`);
+  return response.data;
+};
+
+
+export const createWorkModule = async (data: { project: number, title: string, description?: string, status?: string, priority?: string }) => {
+  const response = await api.post('/planner/modules/', data);
+  return response.data;
+};
+
+
+export const createWorkLog = async (data: { module: number, content: string, log_type?: string, version_tag?: string }) => {
+  const response = await api.post('/planner/logs/', data);
+  return response.data;
+};

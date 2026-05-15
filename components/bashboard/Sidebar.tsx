@@ -7,7 +7,8 @@ import { signOut } from 'next-auth/react';
 import {
     LayoutDashboard, FolderKanban, Beaker,
     LogOut, Globe, ChevronLeft, ChevronRight,
-    UserCircle, Menu, X, Clock
+    UserCircle, Menu, X, Clock,
+    Target
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -97,6 +98,22 @@ export default function Sidebar() {
                             <AdminNavTab href="/dashboard/projects" icon={<FolderKanban size={18} />} label="Proyectos" active={pathname === '/dashboard/projects'} isCollapsed={isCollapsed} />
                             <AdminNavTab href="/dashboard/lab" icon={<Beaker size={18} />} label="Laboratorio" active={pathname === '/dashboard/lab'} isCollapsed={isCollapsed} />
                             <AdminNavTab href="/dashboard/timeline" icon={<Clock size={18} />} label="Línea de Tiempo" active={pathname === '/dashboard/timeline'} isCollapsed={isCollapsed} />
+                        </div>
+                    </div>
+                    <div>
+                        {!isCollapsed && (
+                            <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-[#86868b] mb-3 transition-opacity duration-300">
+                                Gestión Interna
+                            </p>
+                        )}
+                        <div className="space-y-1">
+                            <AdminNavTab
+                                href="/dashboard/planner"
+                                icon={<Target size={18} />}
+                                label="Planner"
+                                active={pathname.includes('/dashboard/planner')}
+                                isCollapsed={isCollapsed}
+                            />
                         </div>
                     </div>
 
