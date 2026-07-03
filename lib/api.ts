@@ -1,4 +1,5 @@
 
+//lib/api.ts
 
 import axios from 'axios';
 import { getSession, signOut } from 'next-auth/react';
@@ -287,5 +288,25 @@ export const createWorkModule = async (data: { project: number, title: string, d
 
 export const createWorkLog = async (data: { module: number, content: string, log_type?: string, version_tag?: string }) => {
   const response = await api.post('/planner/logs/', data);
+  return response.data;
+};
+
+
+
+
+// --- RUTAS BAZAR ---
+
+export const getProductoByBarcode = async (barcode: string) => {
+  const response = await api.get(`/bazar/productos/barras/${barcode}/`);
+  return response.data;
+};
+
+export const createProducto = async (data: any) => {
+  const response = await api.post('/bazar/productos/', data);
+  return response.data;
+};
+
+export const updateProducto = async (barcode: string, data: any) => {
+  const response = await api.put(`/bazar/productos/barras/${barcode}/`, data);
   return response.data;
 };
