@@ -93,7 +93,7 @@ export default function Home() {
           </p>
 
           <h1 className="text-[3.5rem] leading-[0.85] sm:text-7xl lg:text-[8rem] font-black tracking-tighter uppercase mb-6 md:mb-8 break-words">
-            Welcome  tes seba<br />
+            Welcome<br />
             <span className="font-serif italic font-normal tracking-normal lowercase text-[2.5rem] sm:text-6xl lg:text-8xl">to my</span> <br />
             Portfolio
           </h1>

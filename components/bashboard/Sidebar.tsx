@@ -114,6 +114,16 @@ export default function Sidebar() {
                                 active={pathname.includes('/dashboard/planner')}
                                 isCollapsed={isCollapsed}
                             />
+                            <AdminNavTab
+                                href="/study"
+                                icon={<Target size={18} />}
+                                label="Chat"
+                            />
+                            <AdminNavTab
+                                href="/bazar"
+                                icon={<Target size={18} />}
+                                label="bazar"
+                            />
                         </div>
                     </div>
 
