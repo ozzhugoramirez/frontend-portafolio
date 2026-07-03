@@ -8,9 +8,10 @@ export default function ScannerMobil() {
 
   // Configuración del escáner
   const { ref } = useZxing({
-    onDecodeResult(result) {
+
+    onDecodeResult(resultado) {
       // Cuando lee un código exitosamente, guardamos el texto
-      setResultado(result.getText());
+      setResultado(resultado.rawValue);
     },
   });
 
